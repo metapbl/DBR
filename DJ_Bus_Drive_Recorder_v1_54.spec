@@ -7,6 +7,8 @@
 # - licenses/ 폴더를 --add-data로 배포물에 동봉 (LGPL/GPL/MPL/MIT 전문 + THIRD_PARTY_LICENSES.txt)
 # - 이미지(아이콘 PNG, 공공누리 마크)는 모두 소스에 base64로 내장되어 있으므로
 #   런타임 이미지 자산에 대한 --add-data는 필요 없음.
+# - macOS에서는 단일 바이너리에 아이콘이 적용되지 않으므로,
+#   BUNDLE 블록으로 .app 번들을 함께 생성해 bus.icns를 적용한다.
 
 import sys
 
@@ -48,3 +50,18 @@ exe = EXE(
     entitlements_file=None,
     icon=[app_icon],
 )
+
+if sys.platform == 'darwin':
+    app = BUNDLE(
+        exe,
+        name='DJ_Bus_Drive_Recorder_v1_54.app',
+        icon=app_icon,
+        bundle_identifier='com.metapbl.seoulbusdriverecorder',
+        version='1.19',
+        info_plist={
+            'NSPrincipalClass': 'NSApplication',
+            'NSHighResolutionCapable': True,
+            'CFBundleDisplayName': 'Seoul Bus Drive Recorder v1.19',
+            'LSMinimumSystemVersion': '11.0',
+        },
+    )
