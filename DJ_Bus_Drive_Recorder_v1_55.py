@@ -2324,7 +2324,7 @@ class DJBusRecorder(QMainWindow):
 #          그 외이면 pos_suspend_until 설정으로 API 호출 중지
 #      버스 있으면:
 #        - lastStnId가 첫·두 번째 정류소 → 출발 기록 (_record)
-#          (40분=2400초 내 중복 방지, departed_vehicles에 등록)
+#          (30분=1800초 내 중복 방지, departed_vehicles에 등록)
 #        - URL_SLST로 구간 속도 수집 → _sect_speeds 갱신
 #        - sig_update_map으로 지도 버스 위치 갱신
 #      [도착 판정]
@@ -2415,7 +2415,7 @@ class DJBusRecorder(QMainWindow):
                     if not (ifs or iss):
                         continue
                     k0 = (0, rid, vn)
-                    if k0 not in self.last_arrival_logs or _now - self.last_arrival_logs[k0] >= 2400:
+                    if k0 not in self.last_arrival_logs or _now - self.last_arrival_logs[k0] >= 1800:
                         ft2 = format_datetm(bus.findtext("dataTm"))
                         if ifs:
                             dn, da = route['first_nm'], route['first_ars']
@@ -2476,7 +2476,7 @@ class DJBusRecorder(QMainWindow):
                 if (rid, vn) not in self.departed_vehicles:
                     continue
                 k1 = (1, rid, vn)
-                if k1 not in self.last_arrival_logs or _now - self.last_arrival_logs[k1] >= 2400:
+                if k1 not in self.last_arrival_logs or _now - self.last_arrival_logs[k1] >= 1800:
                     ft2 = format_datetm(bus.findtext("dataTm"))
                     st = f"[{route['last_nm']}({route['last_ars']}) 도착]"
                     self._record(1, ft2, rnm, vn, route['last_nm'], route['last_ars'], st)
