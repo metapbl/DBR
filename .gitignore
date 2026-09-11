@@ -15,10 +15,13 @@ __pycache__/
 
 # 사용자 설정 (인증키 포함)
 DJ_Bus_Config.ini
-운행기록_*.xlsx
+*운행기록_*.xlsx
 
 # 에디터 · OS
 .vscode/
 .idea/
 Thumbs.db
 .DS_Store
+
+# 크래쉬 덤프 (에러로그)
+crash_dump.txt

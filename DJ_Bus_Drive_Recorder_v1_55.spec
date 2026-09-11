@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 #
-# DJ_Bus_Drive_Recorder_v1_54 PyInstaller spec
+# DJ_Bus_Drive_Recorder_v1_55 PyInstaller spec
 # - onefile / windowed 빌드 유지 (이전 버전과 동일한 저용량 빌드 방식)
 # - 아이콘: Windows는 assets/bus.ico, macOS는 assets/bus.icns 사용
 #   (기존 저장소에 없던 Icon.ico 참조 문제 해결)
@@ -15,7 +15,7 @@ import sys
 app_icon = 'assets/bus.icns' if sys.platform == 'darwin' else 'assets/bus.ico'
 
 a = Analysis(
-    ['DJ_Bus_Drive_Recorder_v1_54.py'],
+    ['DJ_Bus_Drive_Recorder_v1_55.py'],
     pathex=[],
     binaries=[],
     datas=[('licenses', 'licenses')],
@@ -35,7 +35,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='DJ_Bus_Drive_Recorder_v1_54',
+    name='DJ_Bus_Drive_Recorder_v1_55',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -54,14 +54,14 @@ exe = EXE(
 if sys.platform == 'darwin':
     app = BUNDLE(
         exe,
-        name='DJ_Bus_Drive_Recorder_v1_54.app',
+        name='DJ_Bus_Drive_Recorder_v1_55.app',
         icon=app_icon,
         bundle_identifier='com.metapbl.seoulbusdriverecorder',
         version='1.19',
         info_plist={
             'NSPrincipalClass': 'NSApplication',
             'NSHighResolutionCapable': True,
-            'CFBundleDisplayName': 'Seoul Bus Drive Recorder v1.19',
+            'CFBundleDisplayName': 'DJ_Bus_Drive_Recorder_v1_55',
             'LSMinimumSystemVersion': '11.0',
         },
     )
