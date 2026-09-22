@@ -1,4 +1,4 @@
-# DJ_Bus_Drive_Recorder_v1_54 - 직접 의존성 (버전 고정)
+# DJ_Bus_Drive_Recorder - 직접 의존성 (버전 고정)
 # 설치: pip install -r requirements.txt
 PySide6==6.11.1
 requests==2.34.2

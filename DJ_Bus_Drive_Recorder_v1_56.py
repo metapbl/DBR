@@ -1,5 +1,5 @@
 # ============================================================
-# DJ_Bus_Drive_Recorder v1.55
+# DJ_Bus_Drive_Recorder
 #
 # 【프로그램 설명】
 #   대진여객의 고정 노선(6개)에 대해 서울시 공공데이터 API를 이용하여
@@ -11,7 +11,7 @@
 #   ③ 노선 탭 메뉴로 지도 화면 전환 (ROUTE_MENU_ORDER 순서)
 #   ④ 즐겨찾기 기능은 없음 (노선이 고정이라 검색·저장 대상이 없음)
 #
-#   Seoul_Bus_Drive_Recorder와 동일한 점 (v1.55에서 이식):
+#   Seoul_Bus_Drive_Recorder와 동일한 점:
 #   - API 인증키(메인+보조)는 소스 코드에 고정되지 않고, 메뉴 [인증키 입력]에서
 #     사용자가 직접 입력·검증하며, Fernet으로 암호화하여 DJ_Bus_Config.ini
 #     설정 파일에 저장한다.
@@ -43,10 +43,10 @@
 #      ├─ 【3-8】  load_pixmap_from_b64()  Base64 → QPixmap 변환
 #      ├─ 【3-9】  make_bus_pixmap()       버스 아이콘 생성
 #      ├─ 【3-10~13】 get_app_bg_color()/get_text_color()/get_base_color()/get_header_bg_color() 테마 색상 getter
-#      ├─ 【3-14】 detect_os_dark_mode()   OS 다크모드 감지
-#      ├─ 【3-15】 ElidedLabel             말줄임 처리 레이블 (로그 헤더 파일 경로용)
-#      ├─ 【3-16】 _licenses_dir()         라이선스 전문 폴더 경로 반환
-#      └─ 【3-17】 _open_licenses_dir()    라이선스 전문 폴더를 OS 파일 탐색기로 열기
+#      ├─ 【3-10】 detect_os_dark_mode()   OS 다크모드 감지
+#      ├─ 【3-11】 ElidedLabel             말줄임 처리 레이블 (로그 헤더 파일 경로용)
+#      ├─ 【3-12】 _licenses_dir()         라이선스 전문 폴더 경로 반환
+#      └─ 【3-13】 _open_licenses_dir()    라이선스 전문 폴더를 OS 파일 탐색기로 열기
 # 【4】 RouteMapPanel 클래스 (노선 지도 패널 위젯)
 #      ├─ 【4-1】  __init__()              초기화·위젯 구성·타이머 설정
 #      ├─ 【4-2】  set_sect_speeds()       구간 속도 데이터 저장
@@ -94,31 +94,37 @@
 #      ├─ 【6-22】 fetch_api()       ★     서울시 버스 API 공통 호출
 #      ├─ 【6-23】 _fetch_first_time()     첫차 시각 조회
 #      ├─ 【6-24】 _on_toggle()            기록 시작/중지 토글 (예약·이전기록 팝업 포함)
-#      ├─ 【6-25】 _start_monitoring()     모니터링 시작 (중복 실행 가드 포함)
-#      ├─ 【6-26】 _clear_recorded_data()  기록창·recorded_data 초기화
-#      ├─ 【6-27】 _stop_monitoring()      모니터링 중지 (중지예약 팝업 분기 포함)
-#      ├─ 【6-28】 _main_loop()            백그라운드 갱신 루프 스레드
-#      ├─ 【6-29】 _refresh_data()         한 번의 데이터 갱신 실행
-#      ├─ 【6-30】 _process_routes()  ★    버스 위치 분석·운행 판정 핵심
-#      ├─ 【6-31】 _record()               운행 이벤트 기록
-#      ├─ 【6-32】 _perform_auto_save()    자동 엑셀 저장 (락 보호)
-#      ├─ 【6-33】 _core_excel_save()      엑셀 파일 저장 (날짜별 시트)
-#      ├─ 【6-34】 _write_source_sheet()   엑셀 "출처" 시트 작성 (공공데이터 4종 출처표시)
-#      ├─ 【6-35】 _axs()                  엑셀 시트 스타일 적용
-#      ├─ 【6-36】 _ask_interval()         갱신 주기 입력 대화상자
-#      ├─ 【6-37】 _on_schedule_toggle()   예약 버튼 4가지 분기 처리
-#      ├─ 【6-38】 _ask_scheduled_start()  기록 시작 예약 시각 입력 창
-#      ├─ 【6-39】 _register_schedule_timer()   시작 예약 폴링 타이머
-#      ├─ 【6-40】 _ask_scheduled_stop()   기록 중지 예약 시각 입력 창
-#      ├─ 【6-41】 _register_stop_schedule_timer() 중지 예약 폴링 타이머
-#      ├─ 【6-42】 _stop_monitoring_silent()  예약 자동 중지 (확인창 없음)
-#      ├─ 【6-43】 _show_api_status()      API 호출 현황 대화상자
-#      ├─ 【6-44】 _show_program_info()    프로그램 정보 대화상자
-#      └─ 【6-45】 closeEvent()            창 닫기 이벤트 처리
+#      ├─ 【6-25】 _on_source_sheet_toggle(checked)  엑셀 출처 표시 시트 추가 토글
+#      ├─ 【6-26】 _on_autostart_toggle(checked)     실행 즉시 자동 기록시작 토글
+#      ├─ 【6-27】 _on_debug_log_toggle(checked)     디버그 로그 활성화 토글
+#      ├─ 【6-28】 _auto_start_record()    실행 즉시 자동 기록시작 옵션 적용
+#      ├─ 【6-29】 _start_monitoring()     모니터링 시작 (중복 실행 가드 포함)
+#      ├─ 【6-30】 _clear_recorded_data()  기록창·recorded_data 초기화
+#      ├─ 【6-31】 _stop_monitoring()      모니터링 중지 (중지예약 팝업 분기 포함)
+#      ├─ 【6-32】 _main_loop()            백그라운드 갱신 루프 스레드
+#      ├─ 【6-33】 _refresh_data()         한 번의 데이터 갱신 실행
+#      ├─ 【6-34】 _process_routes()  ★    버스 위치 분석·운행 판정 핵심
+#      ├─ 【6-35】 _record()               운행 이벤트 기록
+#      ├─ 【6-36】 _perform_auto_save()    자동 엑셀 저장 (락 보호)
+#      ├─ 【6-37】 _final_save()           최종 엑셀 저장 (락 보호)
+#      ├─ 【6-38】 _rotate_live_file(new_dates)      기록 파일 회전 (날짜별 시트)
+#      ├─ 【6-39】 _core_excel_save()      엑셀 파일 저장 (날짜별 시트)
+#      ├─ 【6-40】 _write_source_sheet()   엑셀 "출처" 시트 작성 (공공데이터 4종 출처표시)
+#      ├─ 【6-41】 _axs()                  엑셀 시트 스타일 적용
+#      ├─ 【6-42】 _ask_interval()         갱신 주기 입력 대화상자
+#      ├─ 【6-43】 _on_schedule_toggle()   예약 버튼 4가지 분기 처리
+#      ├─ 【6-44】 _ask_scheduled_start()  기록 시작 예약 시각 입력 창
+#      ├─ 【6-45】 _register_schedule_timer()   시작 예약 폴링 타이머
+#      ├─ 【6-46】 _ask_scheduled_stop()   기록 중지 예약 시각 입력 창
+#      ├─ 【6-47】 _register_stop_schedule_timer() 중지 예약 폴링 타이머
+#      ├─ 【6-48】 _stop_monitoring_silent()  예약 자동 중지 (확인창 없음)
+#      ├─ 【6-49】 _show_api_status()      API 호출 현황 대화상자
+#      ├─ 【6-50】 _show_program_info()    프로그램 정보 대화상자
+#      └─ 【6-51】 closeEvent()            창 닫기 이벤트 처리
 # 【7】 프로그램 진입점 (if __name__ == "__main__")
 # ══════════════════════════════════════════════════════════
 # ============================================================
-# DJ_Bus_Drive_Recorder_v1.55
+# DJ_Bus_Drive_Recorder
 # ============================================================
 
 # ══════════════════════════════════════════════════════════
@@ -250,7 +256,59 @@ except ImportError:
 # ══════════════════════════════════════════════════════════
 # 【2-1】 프로그램 버전 상수 (APP_VERSION)
 # ══════════════════════════════════════════════════════════
-APP_VERSION = "1.55"
+APP_NAME = "대진여객 버스 운행기록 수집 프로그램"
+APP_VERSION = "1.56.8"
+APP_TITLE = f"{APP_NAME} v{APP_VERSION}"
+
+# 엑셀 "출처 및 수집방법" 시트 생성 기본값 (실제 on/off는 [옵션] 메뉴 / DJ_Bus_Config.ini 로 관리)
+EXCEL_SOURCE_SHEET = True
+# 출처표시 시트명 (하드코딩 대신 상수로 관리)
+_SRC_SHEET_NAME = "출처 및 수집방법"
+
+
+# ══════════════════════════════════════════════════════════
+# [옵션] DJ_Bus_Config.ini [options] on/off 읽기·쓰기 헬퍼
+#   프로그램 내부 스위치 대신 [옵션] 메뉴(GUI)로 조정하고,
+#   설정값은 문자열 on/off 로 ini에 저장한다(과거 true/false 허용).
+# ══════════════════════════════════════════════════════════
+_CFG_FILE_NAME = "DJ_Bus_Config.ini"
+
+
+def _ini_str_to_bool(s):
+    """ini의 on/off 문자열 → bool. 과거 true/false/1/0/yes/no 도 허용."""
+    return str(s).strip().lower() in ("on", "true", "1", "yes", "y")
+
+
+def _bool_to_ini(v):
+    """bool → ini 저장 문자열 'on'/'off'."""
+    return "on" if v else "off"
+
+
+def _read_ini_options(base_dir=None):
+    """DJ_Bus_Config.ini [options] 섹션을 읽어 dict로 반환(실패 시 빈 dict).
+
+    반환 키: source_sheet / autostart / debug_log (bool).
+    """
+    if base_dir is None:
+        if getattr(sys, "frozen", False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base_dir, _CFG_FILE_NAME)
+    out = {}
+    if not os.path.exists(path):
+        return out
+    try:
+        import configparser as _cp
+        c = _cp.ConfigParser()
+        c.read(path, encoding="utf-8")
+        if c.has_section("options"):
+            for _k in ("source_sheet", "autostart", "debug_log"):
+                if c.has_option("options", _k):
+                    out[_k] = _ini_str_to_bool(c.get("options", _k))
+    except Exception:
+        pass
+    return out
 
 # ══════════════════════════════════════════════════════════
 # 【2-2】 글꼴(폰트) 이름 상수
@@ -259,6 +317,109 @@ APP_VERSION = "1.55"
 # FONT_MONO  : 로그창 등 코드형 텍스트용 고정폭 폰트 "Consolas"
 FONT_FAMILY = "맑은 고딕"
 FONT_MONO = "Consolas"
+
+# ══════════════════════════════════════════════════════════
+# 【관측】 런타임 상세(C등급) 로거
+#   · DEBUG_CRASH_LOG 하나로 crash_dump.txt + 런타임 로그를 동시 on/off
+#   · Off(False)이면 두 파일 모두 생성되지 않음(스텁이 no-op로 동작)
+#   · 파일명: djbus_runtime_YYYYMMDD_HHMMSS.log (생성 시각 == 그 회차 시작)
+#   · 회전 트리거: ① 프로그램 시작  ② 엑셀 '완결' 파일 생성 시
+#   · 각 줄에 기록 시각 + 스레드명/ID 를 남겨 원인 귀속(attribution)에 사용
+# ══════════════════════════════════════════════════════════
+class _RuntimeLog:
+    """운영 상세(C등급) 로거. 파일을 열고 '현재 기록 중인 파일'을 스스로 안다."""
+
+    def __init__(self):
+        self.fp = None
+        self.path = None
+
+    @staticmethod
+    def _base_dir():
+        if getattr(sys, "frozen", False):
+            return os.path.dirname(sys.executable)
+        return os.path.dirname(os.path.abspath(__file__))
+
+    def _open(self):
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.path = os.path.join(self._base_dir(), "djbus_runtime_%s.log" % stamp)
+        self.fp = open(self.path, "a", encoding="utf-8", buffering=1)
+
+    def start(self, reason="시작"):
+        try:
+            self._open()
+            self._raw("[LOG] 런타임 상세 로그 시작 (v%s, %s)" % (APP_VERSION, sys.platform))
+            self._raw("[LOG] 현재 기록 파일: %s" % self.path)
+        except Exception:
+            pass
+
+    def rotate(self, reason="교체"):
+        try:
+            if self.fp is not None:
+                self._raw("[LOG] 로그 교체 (%s) → 이전 파일 종료" % reason)
+                self.fp.close()
+                self.fp = None
+            self._open()
+            self._raw("[LOG] 새 런타임 로그 시작 (%s)" % reason)
+            self._raw("[LOG] 현재 기록 파일: %s" % self.path)
+        except Exception:
+            pass
+
+    def _raw(self, msg):
+        if self.fp is None:
+            return
+        try:
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.fp.write("[%s] [%s:%d] %s\n"
+                          % (ts, threading.current_thread().name,
+                             threading.get_ident(), msg))
+            self.fp.flush()
+        except Exception:
+            pass
+
+    def write(self, msg):
+        self._raw(msg)
+
+    def close(self):
+        try:
+            if self.fp is not None:
+                self._raw("[LOG] 런타임 로그 종료")
+                self.fp.close()
+                self.fp = None
+        except Exception:
+            pass
+
+
+class _RuntimeLogStub:
+    """DEBUG_CRASH_LOG=False 일 때 쓰이는 no-op 로거(파일 미생성)."""
+    path = None
+    def start(self, *a, **k): pass
+    def rotate(self, *a, **k): pass
+    def write(self, *a, **k): pass
+    def close(self): pass
+
+
+_rt_log = _RuntimeLogStub()
+
+
+def _gc_stats_line(tag):
+    """쓰레기 '수치' 스냅샷 한 줄. gc.collect()는 호출하지 않고 카운터만 읽음."""
+    import gc
+    try:
+        g0, g1, g2 = gc.get_count()
+        st = gc.get_stats()
+        return ("[GC] %s 카운터=(%d,%d,%d) gen2누적수거=%d 도달불가=%d gc_on=%s"
+                % (tag, g0, g1, g2, st[2]["collected"], len(gc.garbage), gc.isenabled()))
+    except Exception:
+        return "[GC] %s 조회 실패" % tag
+
+
+def get_current_runtime_log():
+    """현재 기록 중인 런타임 로그 경로 반환(프로그램은 이 값을 항상 알고 있음)."""
+    return _rt_log.path
+
+
+# ══════════════════════════════════════════════════════════
+
 
 # ══════════════════════════════════════════════════════════
 # 【2-3】 아이콘/이미지 데이터 (Base64 인코딩)
@@ -527,10 +688,10 @@ def make_bus_pixmap():
 # 【3-10~13】 현재 테마 색상 getter 함수들
 #   팔레트에서 용도별 색상을 반환. 테마가 바뀌어도 올바른 색상 반환.
 # ══════════════════════════════════════════════════════════
-# get_app_bg_color()    → QPalette.Window      (창 배경색)
-# get_text_color()      → QPalette.WindowText  (글자색)
-# get_base_color()      → QPalette.Base        (표·입력창 배경색)
-# get_header_bg_color() → QPalette.Button      (표 헤더 배경색)
+# 【3-10】get_app_bg_color()    → QPalette.Window      (창 배경색)
+# 【3-11】get_text_color()      → QPalette.WindowText  (글자색)
+# 【3-12】get_base_color()      → QPalette.Base        (표·입력창 배경색)
+# 【3-13】get_header_bg_color() → QPalette.Button      (표 헤더 배경색)
 def get_app_bg_color():
     return QApplication.palette().color(QPalette.Window)
 
@@ -742,21 +903,21 @@ class RouteMapPanel(QWidget):
         self._resize_timer.setInterval(300)
         self._resize_timer.timeout.connect(self._on_resize_done)
         
-    def set_sect_speeds(self, speeds):
 # ──────────────────────────────────────────────────────────
 # 【4-2】 set_sect_speeds(speeds)
 #   구간별 속도 데이터 저장. None이면 빈 dict로 초기화.
 #   @param speeds: {seq번호(int): 속도(float km/h)} dict
 # ──────────────────────────────────────────────────────────
+    def set_sect_speeds(self, speeds):
         self._sect_speeds = speeds if speeds else {}
 
-    def eventFilter(self, obj, event):
 # ──────────────────────────────────────────────────────────
 # 【4-3】 eventFilter(obj, event) → bool
 #   지도 뷰포트 마우스 이벤트를 가로채어 툴팁 제어.
 #   MouseMove: 아이템의 data(0) 값(툴팁 문자열)을 읽어 _tip_label 표시.
 #   Leave    : 툴팁 숨김.
 # ──────────────────────────────────────────────────────────
+    def eventFilter(self, obj, event):
         if obj is self._view.viewport():
             if event.type() == event.Type.MouseMove:
                 pos = self._view.mapToScene(event.position().toPoint())
@@ -777,25 +938,24 @@ class RouteMapPanel(QWidget):
                 return False
         return super().eventFilter(obj, event)
 
-    def resizeEvent(self, event):
 # ──────────────────────────────────────────────────────────
 # 【4-4】 resizeEvent(event)
 #   창 크기 변경 시 Qt 자동 호출. _resize_timer를 300ms로 (재)시작하여
 #   변경이 끝난 후 한 번만 지도를 재그림. (성능 최적화)
 # ──────────────────────────────────────────────────────────
+    def resizeEvent(self, event):
         super().resizeEvent(event)
         if self._stations:
             self._resize_timer.start()
 
-    def _on_resize_done(self):
 # ──────────────────────────────────────────────────────────
 # 【4-5】 _on_resize_done()
 #   _resize_timer 만료(300ms) 후 호출. _stations가 있으면 _draw() 재호출.
 # ──────────────────────────────────────────────────────────
+    def _on_resize_done(self):
         if self._stations:
             self._draw(self._last_buses)
 
-    def _calc_layout(self, n):
 # ──────────────────────────────────────────────────────────
 # 【4-6】 _calc_layout(n) → (spr, cw, ch, font_size)
 #   창 크기와 정류소 수로 레이아웃 값 계산.
@@ -803,6 +963,7 @@ class RouteMapPanel(QWidget):
 #   cw=usable_w/spr,  ch=usable_h/rows (최소 CELL_H),
 #   font_size: cw 비례로 6pt~10pt 선형 보간.
 # ──────────────────────────────────────────────────────────
+    def _calc_layout(self, n):
         view_w = max(self._view.viewport().width(), self._min_map_width)
         view_h = self._view.viewport().height()
         usable_w = view_w - PAD_X * 2 - 20
@@ -840,11 +1001,11 @@ class RouteMapPanel(QWidget):
 
         return spr, cw, ch, font_size
 
-    def _update_bg_color(self):
 # ──────────────────────────────────────────────────────────
 # 【4-7】 _update_bg_color()  지도 뷰 배경색을 현재 테마 창 배경색으로 갱신.
 # 【4-8】 _update_tip_style() 툴팁 CSS 스타일을 현재 테마에 맞게 갱신.
 # ──────────────────────────────────────────────────────────
+    def _update_bg_color(self):
         self._view.setBackgroundBrush(QBrush(get_app_bg_color()))
         
     def _update_tip_style(self):
@@ -857,24 +1018,24 @@ class RouteMapPanel(QWidget):
                 "QLabel { background-color: #FDFDFD; color: #000000; "
                 "border: 1px solid #AAAAAA; padding: 4px; }")
 
-    def refresh_theme(self):
 # ──────────────────────────────────────────────────────────
 # 【4-9】 refresh_theme()
 #   테마 변경 시 이 패널 전체를 새 테마로 갱신.
 #   처리: 배경색 → 툴팁 스타일 → 지도 재그리기 → 표 색상 재적용
 # ──────────────────────────────────────────────────────────
+    def refresh_theme(self):
         self._update_bg_color()
         self._update_tip_style()
         if self._stations:
             self._draw(self._last_buses)
         self._rebuild_table_colors()
 
-    def _rebuild_table_colors(self):
 # ──────────────────────────────────────────────────────────
 # 【4-10】 _rebuild_table_colors()
 #   도착 예정 표 모든 셀 색상을 현재 테마로 재적용.
 #   0번 열/행 → header_bg, 나머지 → base_bg
 # ──────────────────────────────────────────────────────────
+    def _rebuild_table_colors(self):
         header_bg = get_header_bg_color()
         base_bg = get_base_color()
         txt_color = get_text_color()
@@ -888,33 +1049,33 @@ class RouteMapPanel(QWidget):
                     else:
                         item.setBackground(QBrush(base_bg))
 
-    def load_route(self, stations, rtype="3", length=""):
 # ──────────────────────────────────────────────────────────
 # 【4-11】 load_route(stations, rtype="3", length="")
 #   정류소 목록을 받아 저장하고 지도를 처음 그림 (buses=None).
 #   _init_route_map_panels()에서 각 패널 생성 직후 호출됨.
 # ──────────────────────────────────────────────────────────
+    def load_route(self, stations, rtype="3", length=""):
         self._stations = stations
         self._current_rtype = rtype
         self._current_length = length
         self._draw(None)
 
-    def update_buses(self, buses):
 # ──────────────────────────────────────────────────────────
 # 【4-12】 update_buses(buses)
 #   현재 운행 버스 목록 받아 지도 갱신. _slot_update_map에서 호출.
 # ──────────────────────────────────────────────────────────
+    def update_buses(self, buses):
         if not self._stations:
             return
         self._last_buses = buses
         self._draw(buses)
         
-    def _speed_color(self, seq_idx):
 # ──────────────────────────────────────────────────────────
 # 【4-13】 _speed_color(seq_idx) → QColor or None
 #   구간 속도 → 선 색상 반환.
 #    0~9 km/h  → 빨강  (정체),  10~19 → 노랑,  20+ → 초록,  없음 → None
 # ──────────────────────────────────────────────────────────
+    def _speed_color(self, seq_idx):
         spd = self._sect_speeds.get(seq_idx, -1)
         if spd < 0:
             return None
@@ -925,7 +1086,6 @@ class RouteMapPanel(QWidget):
         else:
             return QColor(0, 255, 0)
 
-    def _draw(self, buses):
 # ──────────────────────────────────────────────────────────
 # 【4-14】 _draw(buses)  ★ 지도 그리기 핵심 함수 ★
 #   QGraphicsScene을 clear하고 모든 요소를 처음부터 재그림.
@@ -946,6 +1106,7 @@ class RouteMapPanel(QWidget):
 #   ⑦ 행 연결 화살표(↓)
 #   ⑧ sceneRect 설정 + _build_table() 호출
 # ──────────────────────────────────────────────────────────
+    def _draw(self, buses):
         self._scene.clear()
         self._bus_seconds.clear()
         stations = self._stations
@@ -1192,13 +1353,13 @@ class RouteMapPanel(QWidget):
         self._view.ensureVisible(0, 0, 10, 10)
         self._build_table(table_buses)
 
-    def _build_table(self, table_buses):
 # ──────────────────────────────────────────────────────────
 # 【4-15】 _build_table(table_buses)
 #   지도 하단 "종점 도착 예정 버스" 표(2행×N열) 구성.
 #   정렬: 종점에 가장 가까운 버스(from_idx 높은 순)가 왼쪽, 막차는 맨 오른쪽.
 #   표 너비에 따라 보여줄 버스 열 수 동적 결정.
 # ──────────────────────────────────────────────────────────
+    def _build_table(self, table_buses):
         self._table_bus_info = []
         header_bg = get_header_bg_color()
         base_bg = get_base_color()
@@ -1265,12 +1426,12 @@ class RouteMapPanel(QWidget):
         self._table.horizontalHeader().setDefaultSectionSize(bus_col_w)
         self._table.setColumnWidth(0, label_col_w)
 
-    def _tick_countdown(self):
 # ──────────────────────────────────────────────────────────
 # 【4-16】 _tick_countdown()
 #   1초마다 자동 호출. 각 버스 남은 시간을 1씩 감소하고 표 셀 갱신.
 #   → API 갱신 주기 사이에도 카운트다운이 부드럽게 작동.
 # ──────────────────────────────────────────────────────────
+    def _tick_countdown(self):
         txt_color = get_text_color()
         for k in list(self._bus_seconds.keys()):
             if self._bus_seconds[k] > 0:
@@ -1282,11 +1443,11 @@ class RouteMapPanel(QWidget):
                 item.setText(format_remain_time(sec))
                 item.setForeground(QBrush(txt_color))
 
-    def pause_tick(self):
 # ──────────────────────────────────────────────────────────
 # 【4-17】 pause_tick()  : 카운트다운 타이머 정지 (기록 중지 시 호출)
 # 【4-18】 resume_tick() : 카운트다운 타이머 재시작 (기록 시작 시 호출)
 # ──────────────────────────────────────────────────────────
+    def pause_tick(self):
         self._tick_timer.stop()
 
     def resume_tick(self):
@@ -1299,12 +1460,12 @@ class RecordTable(QWidget):
 #   메인 창 우측에 "운행 출발 시각 기록"과 "운행 종료 시각 기록" 두 개 배치.
 #   컬럼: [시각(145px)] [노선(80px)] [차량번호(95px)] [상태(나머지)]
 # ══════════════════════════════════════════════════════════
-    def __init__(self, title, parent=None):
 # ──────────────────────────────────────────────────────────
 # 【5-1】 __init__(title, parent=None)
 #   표 위에 제목 라벨 배치. 컬럼 너비·정렬·스타일 설정.
 #   편집 불가, 행 선택, 교대 배경색, 세로 헤더 숨김.
 # ──────────────────────────────────────────────────────────
+    def __init__(self, title, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(3, 3, 3, 3)
@@ -1328,12 +1489,12 @@ class RecordTable(QWidget):
         self.table.verticalHeader().setVisible(False)
         layout.addWidget(self.table)
 
-    def add_row(self, values):
 # ──────────────────────────────────────────────────────────
 # 【5-2】 add_row(values)
 #   표 맨 아래에 새 행 삽입 후 scrollToBottom() 자동 스크롤.
 #   col 0~2(시각·노선·차번)는 AlignCenter, col 3(상태)은 기본 정렬.
 # ──────────────────────────────────────────────────────────
+    def add_row(self, values):
         row = self.table.rowCount()
         self.table.insertRow(row)
         for col, val in enumerate(values):
@@ -1364,15 +1525,16 @@ class DJBusRecorder(QMainWindow):
     sig_record = Signal(int, tuple)
     sig_update_map = Signal(str, list)
     sig_clear_map = Signal(str)
+
+    sig_sect_speeds = Signal(str, object)
     sig_init_panels = Signal()
     sig_key_verified = Signal(str, str, str, str)
     _SECRET = "DJ Bus Drive Recorder Secret 2025"
 
-    def __init__(self):
 # ──────────────────────────────────────────────────────────
 # 【6-1】 __init__()
 #   메인 창 초기화. 처리 순서:
-#   1) 창 제목("대진여객 버스 운행기록 수집 프로그램 v1.55")·크기·아이콘 설정
+#   1) 창 제목(APP_TITLE = APP_NAME + 버전)·크기·아이콘 설정
 #   2) current_dir 결정 (실행파일/스크립트 환경 구분)
 #   3) 인스턴스 변수 초기화 (SeoulBusRecorder와 동일 구조):
 #      is_monitoring, routes, routes_ready, refresh_interval,
@@ -1388,8 +1550,9 @@ class DJBusRecorder(QMainWindow):
 #   6) threading.Thread(target=_init_routes) 백그라운드 시작
 #      → API로 노선 정보를 가져오는 동안 UI가 멈추지 않음
 # ──────────────────────────────────────────────────────────
+    def __init__(self):
         super().__init__()
-        self.setWindowTitle("대진여객 버스 운행기록 수집 프로그램 v1.55")
+        self.setWindowTitle(APP_TITLE)
         self.setMinimumSize(800, 500)
         self.resize(1350, 1000)
         try:
@@ -1434,23 +1597,28 @@ class DJBusRecorder(QMainWindow):
         self._scheduled_dt = None     # 예약 기록 시작: 목표 datetime
         self._stop_schedule_timer = None  # 예약 기록 중지: 1초 폴링 QTimer
         self._stop_scheduled_dt = None    # 예약 기록 중지: 목표 datetime
+        self.opt_autostart = False    # [옵션] 실행 즉시 자동 기록시작 (ini [options] autostart)
+        self.opt_source_sheet = EXCEL_SOURCE_SHEET  # [옵션] 엑셀 출처표시 시트 (ini [options] source_sheet)
+        self.opt_debug_log = False    # [옵션] 디버그 로그 활성화 (ini [options] debug_log, 재시작 이후 적용)
 
         self.sig_log.connect(self._slot_log)
         self.sig_record.connect(self._slot_record)
         self.sig_update_map.connect(self._slot_update_map)
         self.sig_clear_map.connect(self._slot_clear_map)
+
+        self.sig_sect_speeds.connect(self._slot_sect_speeds)
         self.sig_init_panels.connect(self._init_route_map_panels)
 
         self._load_config()
         self._setup_ui()
         threading.Thread(target=self._init_routes, daemon=True).start()
 
-    def _make_info_html(self, link_color=None):
 # ──────────────────────────────────────────────────────────
 # 【6-2】 _make_info_html(link_color=None) → str
 #   메뉴바 우측 제작자·데이터출처 정보 HTML 문자열 생성.
 #   테마 변경 시 링크 색상이 팔레트에 맞게 업데이트됨.
 # ──────────────────────────────────────────────────────────
+    def _make_info_html(self, link_color=None):
         if link_color is None:
             link_color = QApplication.palette().color(QPalette.Link).name()
         return (
@@ -1459,7 +1627,6 @@ class DJBusRecorder(QMainWindow):
             f' )   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;● 데이터 출처 : 공공데이터포털 Open API ( '
             f'<a href="https://www.data.go.kr" style="color:{link_color};">https://www.data.go.kr</a> )')
 
-    def _setup_ui(self):
 # ──────────────────────────────────────────────────────────
 # 【6-3】 _setup_ui()
 #   메인 창의 메뉴바·레이아웃·위젯 전체 구성.
@@ -1489,6 +1656,7 @@ class DJBusRecorder(QMainWindow):
 #         ├─ log_header ("로그" 라벨 + "접기" 버튼)
 #         └─ log_text  (QPlainTextEdit, 최대 3000줄)
 # ──────────────────────────────────────────────────────────
+    def _setup_ui(self):
         menubar = self.menuBar()
 
         menu_main = menubar.addMenu("메뉴")
@@ -1502,6 +1670,28 @@ class DJBusRecorder(QMainWindow):
         self.act_schedule.triggered.connect(self._on_schedule_toggle)
         menu_main.addSeparator()
         menu_main.addAction("프로그램 종료").triggered.connect(self.close)
+
+        # ── [옵션] 메뉴 (코드 내부 스위치를 대체하는 GUI 옵션) ──
+        menu_option = menubar.addMenu("옵션")
+
+        self.act_source_sheet = menu_option.addAction("엑셀 출처 표시 시트 추가")
+        self.act_source_sheet.setCheckable(True)
+        self.act_source_sheet.setChecked(self.opt_source_sheet)
+        self.act_source_sheet.toggled.connect(self._on_source_sheet_toggle)
+
+        self.act_autostart = menu_option.addAction("실행 즉시 자동 기록시작(프로그램 재시작 이후 적용됨)")
+        self.act_autostart.setCheckable(True)
+        # 인증키가 없으면 자동 기록시작 불가 → 체크 불가(비활성) 로 처리
+        if not self.api_key_main:
+            self.opt_autostart = False
+        self.act_autostart.setChecked(self.opt_autostart)
+        self.act_autostart.setEnabled(bool(self.api_key_main))
+        self.act_autostart.toggled.connect(self._on_autostart_toggle)
+
+        self.act_debug_log = menu_option.addAction("디버그 로그 활성화(프로그램 재시작 이후 적용됨)")
+        self.act_debug_log.setCheckable(True)
+        self.act_debug_log.setChecked(self.opt_debug_log)
+        self.act_debug_log.toggled.connect(self._on_debug_log_toggle)
 
         menu_route = menubar.addMenu("노선도 선택")
         for rnm in ROUTE_MENU_ORDER:
@@ -1614,13 +1804,13 @@ class DJBusRecorder(QMainWindow):
         log_container.setMinimumHeight(self._log_min_height)
         outer_splitter.setCollapsible(outer_splitter.indexOf(log_container), False)
 
-    def _open_save_file(self):
 # ──────────────────────────────────────────────────────────
 # 【6-4】 _open_save_file()
 #   로그 헤더 [파일열기] 버튼 클릭 시 호출.
 #   현재 기록 중인 엑셀 파일을 기본 연결 프로그램(Excel 등)으로 바로 열기.
 #   Windows: os.startfile / macOS: open 명령 / Linux: xdg-open
 # ──────────────────────────────────────────────────────────
+    def _open_save_file(self):
         if not self.auto_save_path or not os.path.exists(self.auto_save_path):
             QMessageBox.warning(self, "알림", "파일을 찾을 수 없습니다.")
             return
@@ -1634,13 +1824,13 @@ class DJBusRecorder(QMainWindow):
         except Exception as e:
             QMessageBox.warning(self, "오류", f"파일 열기 실패: {e}")
 
-    def _open_save_folder(self):
 # ──────────────────────────────────────────────────────────
 # 【6-5】 _open_save_folder()
 #   로그 헤더 [폴더열기] 버튼 클릭 시 호출.
 #   현재 기록 중인 엑셀 파일이 있는 폴더를 탐색기로 열고 파일을 선택 상태로 표시.
 #   Windows: explorer /select / macOS: open -R / Linux: xdg-open (폴더)
 # ──────────────────────────────────────────────────────────
+    def _open_save_folder(self):
         if not self.auto_save_path:
             QMessageBox.warning(self, "알림", "파일 경로를 확인할 수 없습니다.")
             return
@@ -1654,13 +1844,13 @@ class DJBusRecorder(QMainWindow):
         except Exception as e:
             QMessageBox.warning(self, "오류", f"폴더 열기 실패: {e}")
 
-    def _toggle_log_panel(self):
 # ──────────────────────────────────────────────────────────
 # 【6-6】 _toggle_log_panel()
 #   로그창 접기/펼치기 토글.
 #   접기 : log_text 숨김, 컨테이너를 24px(헤더만)으로 축소.
 #   펼치기: log_text 표시, 이전 저장 높이로 복원.
 # ──────────────────────────────────────────────────────────
+    def _toggle_log_panel(self):
         if self._log_expanded:
             sizes = self._outer_splitter.sizes()
             self._log_last_height = sizes[1]
@@ -1680,13 +1870,13 @@ class DJBusRecorder(QMainWindow):
             self._log_toggle_btn.setText("접기")
             self._log_expanded = True
 
-    def _apply_theme(self, mode):
 # ──────────────────────────────────────────────────────────
 # 【6-7】 _apply_theme(mode)
 #   라이트/다크 테마를 앱 전체에 적용.
 #   ① QApplication 팔레트 적용 → ② 모든 위젯에 강제 적용
 #   → ③ 정보 라벨 링크 색상 갱신 → ④ 모든 RouteMapPanel.refresh_theme()
 # ──────────────────────────────────────────────────────────
+    def _apply_theme(self, mode):
         app = QApplication.instance()
         app.setStyle(QStyleFactory.create("Fusion"))
         p = _make_palette(mode)
@@ -1699,7 +1889,6 @@ class DJBusRecorder(QMainWindow):
             panel.refresh_theme()
 
     @Slot(str)
-    def _slot_log(self, msg):
 # ──────────────────────────────────────────────────────────
 # 【6-8】 _slot_log(msg) [슬롯]
 #   sig_log 수신 → log_text에 "[HH:MM:SS] 메시지" 추가.
@@ -1716,31 +1905,43 @@ class DJBusRecorder(QMainWindow):
 # 【6-12】 log(msg)
 #   sig_log를 emit하는 헬퍼. 백그라운드 스레드에서 UI 안전 업데이트.
 # ──────────────────────────────────────────────────────────
+    def _slot_log(self, msg):
         self.log_text.appendPlainText(datetime.now().strftime("[%H:%M:%S] ") + msg)
 
     @Slot(int, tuple)
     def _slot_record(self, idx, entry):
         (self.table_depart if idx == 0 else self.table_arrive).add_row(entry)
+        _rt_log.write("[SIG] record idx=%s %s" % (idx, entry[2] if len(entry) > 2 else entry,))
 
     @Slot(str, list)
     def _slot_update_map(self, rnm, buses):
         if rnm in self.route_map_panels:
             self.route_map_panels[rnm].update_buses(buses)
+            _rt_log.write("[SIG] update_map %s (%d대)" % (rnm, len(buses)))
 
     @Slot(str)
     def _slot_clear_map(self, rnm):
         if rnm in self.route_map_panels:
             self.route_map_panels[rnm].update_buses([])
+            _rt_log.write("[SIG] clear_map %s" % (rnm,))
+
+
+    @Slot(str, object)
+    def _slot_sect_speeds(self, rnm, speeds):
+        p = self.route_map_panels.get(rnm)
+        if p is not None:
+            p.set_sect_speeds(speeds)
 
     def log(self, msg):
         self.sig_log.emit(msg)
+        _rt_log.write("[LOG] %s" % (msg,))
 
-    def _make_fernet(self):
 # ──────────────────────────────────────────────────────────
 # 【6-13】 _make_fernet() → Fernet | None
 #   _SECRET 문장을 pbkdf2_hmac으로 32바이트 키로 변환하여 Fernet 객체 생성.
 #   cryptography 라이브러리가 없으면(_CRYPTO_OK=False) None 반환.
 # ──────────────────────────────────────────────────────────
+    def _make_fernet(self):
         if not _CRYPTO_OK:
             return None
         dk = _hl.pbkdf2_hmac(
@@ -1748,12 +1949,12 @@ class DJBusRecorder(QMainWindow):
             b"DJBusSalt2025", iterations=100_000, dklen=32)
         return _Fernet(base64.urlsafe_b64encode(dk))
 
-    def _enc_key(self, raw):
 # ──────────────────────────────────────────────────────────
 # 【6-14】 _enc_key(raw) → str
 #   평문 API 인증키를 Fernet으로 암호화하여 ASCII 문자열로 반환.
 #   암호화 실패 또는 라이브러리 없음 시 평문 그대로 반환.
 # ──────────────────────────────────────────────────────────
+    def _enc_key(self, raw):
         if not raw or not _CRYPTO_OK:
             return raw
         try:
@@ -1761,12 +1962,12 @@ class DJBusRecorder(QMainWindow):
         except:
             return raw
 
-    def _dec_key(self, enc):
 # ──────────────────────────────────────────────────────────
 # 【6-15】 _dec_key(enc) → str
 #   암호화된 API 인증키 문자열을 복호화하여 평문으로 반환.
 #   복호화 실패 또는 라이브러리 없음 시 입력값 그대로 반환.
 # ──────────────────────────────────────────────────────────
+    def _dec_key(self, enc):
         if not enc or not _CRYPTO_OK:
             return enc
         try:
@@ -1774,13 +1975,13 @@ class DJBusRecorder(QMainWindow):
         except:
             return enc
 
-    def _load_config(self):
 # ──────────────────────────────────────────────────────────
 # 【6-16】 _load_config()
 #   DJ_Bus_Config.ini 설정 파일이 있으면 [keys] 섹션에서
 #   main_key/back_key를 읽어 복호화 후 self.api_key_main/back에 저장.
 #   파일이 없거나 읽기 실패 시 조용히 무시(빈 문자열 유지).
 # ──────────────────────────────────────────────────────────
+    def _load_config(self):
         cfg = configparser.ConfigParser()
         if not os.path.exists(self._CFG_FILE):
             return
@@ -1792,15 +1993,21 @@ class DJBusRecorder(QMainWindow):
                 self.api_key_main = self._dec_key(enc_m)
             if enc_b:
                 self.api_key_back = self._dec_key(enc_b)
+            if cfg.has_option("options", "autostart"):
+                self.opt_autostart = _ini_str_to_bool(cfg.get("options", "autostart"))
+            if cfg.has_option("options", "source_sheet"):
+                self.opt_source_sheet = _ini_str_to_bool(cfg.get("options", "source_sheet"))
+            if cfg.has_option("options", "debug_log"):
+                self.opt_debug_log = _ini_str_to_bool(cfg.get("options", "debug_log"))
         except:
             pass
 
-    def _save_config(self):
 # ──────────────────────────────────────────────────────────
 # 【6-17】 _save_config()
 #   self.api_key_main/back을 암호화하여 DJ_Bus_Config.ini에 저장.
 #   기존 설정 파일이 있으면 읽어들인 후 [keys] 섹션만 갱신.
 # ──────────────────────────────────────────────────────────
+    def _save_config(self):
         cfg = configparser.ConfigParser()
         if os.path.exists(self._CFG_FILE):
             try:
@@ -1811,13 +2018,17 @@ class DJBusRecorder(QMainWindow):
             cfg["keys"] = {}
         cfg["keys"]["main_key"] = self._enc_key(self.api_key_main)
         cfg["keys"]["back_key"] = self._enc_key(self.api_key_back)
+        if "options" not in cfg:
+            cfg["options"] = {}
+        cfg["options"]["autostart"] = _bool_to_ini(self.opt_autostart)
+        cfg["options"]["source_sheet"] = _bool_to_ini(self.opt_source_sheet)
+        cfg["options"]["debug_log"] = _bool_to_ini(self.opt_debug_log)
         try:
             with open(self._CFG_FILE, "w", encoding="utf-8") as f:
                 cfg.write(f)
         except:
             pass
 
-    def _show_key_input(self):
 # ──────────────────────────────────────────────────────────
 # 【6-18】 _show_key_input()
 #   [메뉴] → [인증키 입력] 클릭 시 호출되는 대화상자.
@@ -1826,6 +2037,7 @@ class DJBusRecorder(QMainWindow):
 #   routes_ready와 api_key_main이 모두 준비되면 [기록 시작]/[예약 기록 시작]
 #   메뉴를 활성화.
 # ──────────────────────────────────────────────────────────
+    def _show_key_input(self):
         dlg = QDialog(self)
         dlg.setWindowTitle("인증키 입력")
         dlg.setFixedSize(560, 260)
@@ -1922,6 +2134,9 @@ class DJBusRecorder(QMainWindow):
                 self.api_key_main = key_m
                 self.api_key_back = key_b
                 self._save_config()
+                # 인증키가 등록되었으므로 자동 기록시작 옵션을 체크 가능하게 함.
+                # 단, 이 세션에서 자동 시작하지는 않는다(재시작 이후 적용).
+                self.act_autostart.setEnabled(True)
                 if self.routes_ready:
                     self.act_toggle.setEnabled(True)
                     self.act_schedule.setEnabled(True)
@@ -1938,7 +2153,6 @@ class DJBusRecorder(QMainWindow):
         except (TypeError, RuntimeError):
             pass
 
-    def _init_routes(self):
 # ──────────────────────────────────────────────────────────
 # 【6-19】 _init_routes()  ★ SeoulBusRecorder에는 없는 DJ 전용 함수 ★
 #   백그라운드 스레드에서 실행. ROUTE_SETUP의 노선 6개에 대해
@@ -1960,6 +2174,7 @@ class DJBusRecorder(QMainWindow):
 #      [기록 시작]/[예약 기록 시작] 버튼이 활성화됨.
 #   ※ API 호출이 실패해도 기본값(대진여객, 정류소 수 100 등)으로 계속 진행.
 # ──────────────────────────────────────────────────────────
+    def _init_routes(self):
         self.log("노선 정보 초기화 및 운수사명 확인 중...")
         routes = []
         for rnm, rid, fst, sst, lst, pst in ROUTE_SETUP:
@@ -2014,7 +2229,6 @@ class DJBusRecorder(QMainWindow):
         self.log(f"노선 초기화 완료: {len(routes)}개 노선 준비 완료")
         self.sig_init_panels.emit()
 
-    def _init_route_map_panels(self):
 # ──────────────────────────────────────────────────────────
 # 【6-20】 _init_route_map_panels() [슬롯]
 #   sig_init_panels 수신 → 메인 스레드에서 실행.
@@ -2023,6 +2237,7 @@ class DJBusRecorder(QMainWindow):
 #   마지막으로 _route_map_select(DEFAULT_MAP_ROUTE)를 호출하여
 #   기본 노선("143") 지도를 화면에 표시.
 # ──────────────────────────────────────────────────────────
+    def _init_route_map_panels(self):
         for route in self.routes:
             rnm = route['rnm']
             panel = RouteMapPanel(rnm)
@@ -2033,8 +2248,16 @@ class DJBusRecorder(QMainWindow):
         if self.api_key_main:
             self.act_toggle.setEnabled(True)
             self.act_schedule.setEnabled(True)
+            self.act_autostart.setEnabled(True)
+            # ── [옵션] 실행 즉시 자동 기록시작 ──
+            #   노선 초기화가 완료된 이 시점에 단일샷 타이머로 1회만 예약한다.
+            #   (기동 시 1회뿐이므로 이미 기록 중이거나 예약이 걸려 있을 수 없다.)
+            if self.opt_autostart:
+                QTimer.singleShot(1000, self._auto_start_record)
+        else:
+            # 인증키가 없으면 자동 기록시작 불가 → 체크 해제 상태 유지
+            self.act_autostart.setEnabled(False)
 
-    def _route_map_select(self, rnm):
 # ──────────────────────────────────────────────────────────
 # 【6-21】 _route_map_select(rnm)
 #   특정 노선의 지도 패널을 map_stack의 앞(currentWidget)으로 전환.
@@ -2042,6 +2265,7 @@ class DJBusRecorder(QMainWindow):
 #   rnm을 정확한 이름 또는 부분 문자열로 찾을 수 있음
 #   (예: "143"으로 "143번" 패널 찾기).
 # ──────────────────────────────────────────────────────────
+    def _route_map_select(self, rnm):
         target = None
         for key in self.route_map_panels:
             if rnm in key or key in rnm:
@@ -2056,7 +2280,6 @@ class DJBusRecorder(QMainWindow):
             p._view.ensureVisible(0, 0, 10, 10)
         self.route_map_current = target
 
-    def fetch_api(self, url, params):
 # ──────────────────────────────────────────────────────────
 # 【6-22】 fetch_api(url, params) → XML root | tuple | None  ★ API 공통 호출 ★
 #   self.api_key_main → self.api_key_back 순으로 API 호출 시도.
@@ -2076,6 +2299,7 @@ class DJBusRecorder(QMainWindow):
 #   ⑦ 모든 키 한도 초과 시 경고 로그 (1회 출력)
 #   ⑧ api_stats_today 호출 횟수 통계 갱신
 # ──────────────────────────────────────────────────────────
+    def fetch_api(self, url, params):
         lh = 0
         kc = sum(1 for k in [self.api_key_main, self.api_key_back] if k)
         for key in [self.api_key_main, self.api_key_back]:
@@ -2085,6 +2309,7 @@ class DJBusRecorder(QMainWindow):
                 p = dict(params)
                 p['serviceKey'] = unquote(key)
                 resp = requests.get(url, params=p, timeout=10)
+                _rt_log.write("[API] 요청 %s → HTTP %s" % (url, resp.status_code))
                 LP = ("TOO MANY", "LIMITED NUMBER", "LIMITED_NUMBER", "RATE LIMIT", "<headerCd>22</headerCd>")
                 if any(pt in resp.text.upper() for pt in LP):
                     lh += 1
@@ -2121,12 +2346,12 @@ class DJBusRecorder(QMainWindow):
             self.log("⚠ 모든 인증키의 호출 한도가 초과되었습니다.")
         return None
 
-    def _fetch_first_time(self, rid):
 # ──────────────────────────────────────────────────────────
 # 【6-23】 _fetch_first_time(rid) → "HH:MM" or None
 #   URL_RINF API로 노선 첫차 시각 조회.
 #   운행 종료 후 다음 첫차까지 API 호출을 중지할 시간 계산에 사용.
 # ──────────────────────────────────────────────────────────
+    def _fetch_first_time(self, rid):
         if not rid:
             return None
         try:
@@ -2140,7 +2365,6 @@ class DJBusRecorder(QMainWindow):
             pass
         return None
 
-    def _on_toggle(self):
 # ──────────────────────────────────────────────────────────
 # 【6-24】 _on_toggle()
 #   [기록 시작]/[기록 중지] 메뉴 클릭 시 호출. 현재 상태에 따라 분기.
@@ -2157,6 +2381,7 @@ class DJBusRecorder(QMainWindow):
 #   기록 중 상태에서 클릭 시:
 #   → _stop_monitoring() 호출
 # ──────────────────────────────────────────────────────────
+    def _on_toggle(self):
         if self.is_monitoring:
             self._stop_monitoring()
         else:
@@ -2185,7 +2410,64 @@ class DJBusRecorder(QMainWindow):
             self._start_monitoring()
 
 # ──────────────────────────────────────────────────────────
-# 【6-25】 _start_monitoring()
+# 【6-25】 _on_source_sheet_toggle(checked)
+#   [옵션] → [엑셀 출처 표시 시트 추가] 체크 상태 변경 시 호출.
+#   즉시 적용되며 값을 DJ_Bus_Config.ini [options] source_sheet 에 저장.
+# ──────────────────────────────────────────────────────────
+    def _on_source_sheet_toggle(self, checked):
+        self.opt_source_sheet = bool(checked)
+        self._save_config()
+        self.log(f"⚙ 엑셀 출처 표시 시트 추가: {'켜짐' if self.opt_source_sheet else '꺼짐'}")
+
+# ──────────────────────────────────────────────────────────
+# 【6-26】 _on_autostart_toggle(checked)
+#   [옵션] → [실행 즉시 자동 기록시작] 체크 상태 변경 시 호출.
+#   - 인증키가 없으면 체크할 수 없다(체크 시도 시 자동 해제).
+#   - 실제 자동 시작은 '프로그램 재시작 이후' 기동 시 _init_route_map_panels()에서 1회.
+#   - 인증키를 새로 입력해도 현재 세션에서 자동 시작하지 않는다.
+# ──────────────────────────────────────────────────────────
+    def _on_autostart_toggle(self, checked):
+        if checked and not self.api_key_main:
+            self.act_autostart.blockSignals(True)
+            self.act_autostart.setChecked(False)
+            self.act_autostart.blockSignals(False)
+            self.opt_autostart = False
+            self.log("⚠ 인증키가 없어 '실행 즉시 자동 기록시작'을 켤 수 없습니다.")
+            return
+        self.opt_autostart = bool(checked)
+        self._save_config()
+        self.log(f"⚙ 실행 즉시 자동 기록시작(재시작 이후 적용): {'켜짐' if self.opt_autostart else '꺼짐'}")
+
+# ──────────────────────────────────────────────────────────
+# 【6-27】 _on_debug_log_toggle(checked)
+#   [옵션] → [디버그 로그 활성화] 체크 상태 변경 시 호출.
+#   값은 DJ_Bus_Config.ini [options] debug_log 에 저장되며,
+#   실제 로그 설치는 '프로그램 재시작 이후'부터 적용된다.
+# ──────────────────────────────────────────────────────────
+    def _on_debug_log_toggle(self, checked):
+        self.opt_debug_log = bool(checked)
+        self._save_config()
+        self.log(f"⚙ 디버그 로그 활성화(재시작 이후 적용): {'켜짐' if self.opt_debug_log else '꺼짐'}")
+
+# ──────────────────────────────────────────────────────────
+# 【6-28】 _auto_start_record()
+#   '실행 즉시 자동 기록시작' 옵션이 켜진 상태에서 프로그램 기동 시 자동 호출.
+#   - _init_route_map_panels()에서 노선 초기화 완료 후 단일샷 QTimer로 1회만 예약됨
+#   - 기동 시 1회뿐이므로 이미 기록 중이거나 예약이 걸려 있을 수 없다.
+#   - 옵션 꺼짐 / 노선 미준비 / 인증키 없음이면 아무것도 하지 않는다.
+# ──────────────────────────────────────────────────────────
+    def _auto_start_record(self):
+        if not self.opt_autostart:
+            return
+        if not self.routes_ready:
+            return
+        if not self.api_key_main:
+            return
+        self.log("▶ [옵션] 실행 즉시 자동 기록시작 — 자동으로 기록을 시작합니다.")
+        self._start_monitoring()
+
+# ──────────────────────────────────────────────────────────
+# 【6-29】 _start_monitoring()
 #   모니터링 시작:
 #   ① 이미 기록 중이면 중복 실행 방지 가드
 #   ② routes_ready 확인 → 아직 초기화 중이면 경고 후 리턴
@@ -2222,7 +2504,7 @@ class DJBusRecorder(QMainWindow):
         self.log(f"▶ 자동 기록을 시작합니다. (주기: {self.refresh_interval}초)")
 
 # ──────────────────────────────────────────────────────────
-# 【6-26】 _clear_recorded_data()
+# 【6-30】 _clear_recorded_data()
 #   기록창(table_depart, table_arrive)과 recorded_data, _saved_record_count를 초기화.
 #   기록 시작 전 이전 기록을 지울 때 호출.
 # ──────────────────────────────────────────────────────────
@@ -2233,7 +2515,7 @@ class DJBusRecorder(QMainWindow):
         self.table_arrive.table.setRowCount(0)
 
 # ──────────────────────────────────────────────────────────
-# 【6-27】 _stop_monitoring()
+# 【6-31】 _stop_monitoring()
 #   모니터링 중지:
 #   ① 중지 예약 중이면 별도 팝업 →
 #      [바로 중지]: 중지 예약 취소 + 즉시 중지
@@ -2269,11 +2551,10 @@ class DJBusRecorder(QMainWindow):
         for p in self.route_map_panels.values():
             p.pause_tick()
         if self.recorded_data and self.auto_save_path and self.can_auto_save and len(self.recorded_data) > self._saved_record_count:
-            self._perform_auto_save()
+            self._final_save()
 
-    def _main_loop(self):
 # ──────────────────────────────────────────────────────────
-# 【6-28】 _main_loop()
+# 【6-32】 _main_loop()
 #   백그라운드 데몬 스레드에서 실행되는 갱신 루프.
 #   is_monitoring=True인 동안 반복:
 #   ① _refresh_data() 호출
@@ -2281,8 +2562,10 @@ class DJBusRecorder(QMainWindow):
 #   ③ 0.1초 단위로 나눠 sleep (중지 명령에 빠르게 반응)
 #   ④ API 호출이 갱신 주기 초과 시 nc를 현재로 리셋 (지연 누적 방지)
 # ──────────────────────────────────────────────────────────
+    def _main_loop(self):
         nc = time.time()
         while self.is_monitoring:
+            _rt_log.write("[HB] _main_loop 회차 진입")
             self._refresh_data()
             nc += self.refresh_interval
             st = nc - time.time()
@@ -2294,13 +2577,13 @@ class DJBusRecorder(QMainWindow):
                     break
                 time.sleep(0.1)
 
-    def _refresh_data(self):
 # ──────────────────────────────────────────────────────────
-# 【6-29】 _refresh_data()
+# 【6-33】 _refresh_data()
 #   한 번의 갱신 실행. _refresh_lock으로 동시 실행 방지.
 #   (이미 갱신 중이면 즉시 리턴)
 #   ① _process_routes() → ② 미저장 기록 있으면 _perform_auto_save()
 # ──────────────────────────────────────────────────────────
+    def _refresh_data(self):
         if not self._refresh_lock.acquire(blocking=False):
             return
         try:
@@ -2310,9 +2593,8 @@ class DJBusRecorder(QMainWindow):
         finally:
             self._refresh_lock.release()
 
-    def _process_routes(self):
 # ──────────────────────────────────────────────────────────
-# 【6-30】 _process_routes()  ★ 운행 기록 판정 핵심 로직 ★
+# 【6-34】 _process_routes()  ★ 운행 기록 판정 핵심 로직 ★
 #
 #   ① 날짜 변경 감지: 자정 이후면 통계 초기화·pos_suspend_until 초기화
 #   ② 6시간 이상 지난 departed_vehicles 항목 자동 삭제
@@ -2332,6 +2614,7 @@ class DJBusRecorder(QMainWindow):
 #        - 도착 기록 (_record)
 #        - departed_vehicles에서 해당 버스 삭제
 # ──────────────────────────────────────────────────────────
+    def _process_routes(self):
         _now = time.time()
         now_dt = datetime.now()
         today = now_dt.date()
@@ -2441,7 +2724,7 @@ class DJBusRecorder(QMainWindow):
                             pass
 
                 if rnm in self.route_map_panels:
-                    self.route_map_panels[rnm]._sect_speeds = sect_speeds
+                    self.sig_sect_speeds.emit(rnm, sect_speeds)
 
                 bfm = []
                 for item in rp1.findall(".//itemList"):
@@ -2483,39 +2766,107 @@ class DJBusRecorder(QMainWindow):
                     self.last_arrival_logs[k1] = _now
                     del self.departed_vehicles[(rid, vn)]
 
-    def _record(self, idx, ft, rnm, vn, sn, sa, status):
 # ──────────────────────────────────────────────────────────
-# 【6-31】 _record(idx, ft, rnm, vn, sn, sa, status)
+# 【6-35】 _record(idx, ft, rnm, vn, sn, sa, status)
 #   운행 이벤트(출발/도착)를 기록.
 #   ① recorded_data에 (시각, "운행시작"/"운행종료", "정류소(ARS)", 노선, 차번) 추가
 #   ② _perform_auto_save() 즉시 저장
 #   ③ log() 로그 출력
 #   ④ sig_record 시그널 발행 → UI 표에 반영
 # ──────────────────────────────────────────────────────────
+    def _record(self, idx, ft, rnm, vn, sn, sa, status):
         op = "운행시작" if idx == 0 else "운행종료"
         self.recorded_data.append((ft, op, f"{sn} ({sa})", rnm, vn))
         self._perform_auto_save()
         self.log(f"★ {rnm} {vn} → {status}")
         self.sig_record.emit(idx, (ft, rnm, vn, status))
 
-    def _perform_auto_save(self):
 # ──────────────────────────────────────────────────────────
-# 【6-32】 _perform_auto_save()
+# 【6-36】 _perform_auto_save()
 #   _save_lock으로 동시 저장 방지 후 _core_excel_save() 호출.
 #   저장 조건: recorded_data 비어있지 않음 + auto_save_path 설정 + can_auto_save=True
 # ──────────────────────────────────────────────────────────
+    def _perform_auto_save(self):
         if not self.recorded_data or not self.auto_save_path or not self.can_auto_save:
             return
         if not self._save_lock.acquire(blocking=False):
             return
         try:
             self._core_excel_save(self.auto_save_path, True)
+            _rt_log.write("[SAVE] _core_excel_save 완료")
         finally:
             self._save_lock.release()
 
-    def _core_excel_save(self, tp, sc=False):
 # ──────────────────────────────────────────────────────────
-# 【6-33】 _core_excel_save(tp, sc=False)
+# 【6-37】 _final_save()
+#   기록 중지/창 닫기 시 호출되는 마지막 저장.
+#   완결 처리(sc=False)를 하지 않고 실시간 파일만 마지막으로 저장한다.
+#   (완결 전환은 오직 자동 저장 사이클의 완결 조건에서만 발생)
+# ──────────────────────────────────────────────────────────
+    def _final_save(self):
+        if not self.recorded_data or not self.auto_save_path or not self.can_auto_save:
+            return
+        if not self._save_lock.acquire(blocking=False):
+            return
+        try:
+            self._core_excel_save(self.auto_save_path, False)
+            _rt_log.write("[SAVE] 최종 저장 완료(완결 처리 없음)")
+        finally:
+            self._save_lock.release()
+
+# ──────────────────────────────────────────────────────────
+# 【6-38】 _rotate_live_file(new_dates)
+#   완결 조건이 충족되면 현재 '기록중인 실시간 파일'을 완결 이름으로
+#   rename(os.replace)하고, 완결 날짜를 실시간 데이터에서 제거한 뒤
+#   실시간 세션을 새로 시작한다.
+#   - 별도 완결 파일을 '생성'하지 않음 (저장 1회로 전환)
+#   - rename 실패(파일 사용 중 등) 시에도 다음 실시간 파일로 넘어감(기록 손실 없음)
+#   - _save_lock 보유 상태(_perform_auto_save)에서만 호출됨
+# ──────────────────────────────────────────────────────────
+    def _rotate_live_file(self, new_dates):
+        try:
+            old_path = self.auto_save_path
+            if not old_path:
+                return
+            def _gbd(ds):
+                try:
+                    d = datetime.strptime(ds, "%Y-%m-%d %H:%M:%S")
+                    if d.hour < 3:
+                        d -= timedelta(days=1)
+                    return d.strftime("%Y-%m-%d")
+                except:
+                    return "Unknown"
+            # ① 실시간 파일 → 완결 이름으로 rename (내용 그대로 봉인)
+            #    ※ rename 실패해도 회전은 계속 진행한다(기록은 이미 저장됨).
+            #       완결 파일은 삭제/아카이브하지 않고 실행경로에 그대로 남긴다.
+            if old_path and os.path.exists(old_path):
+                sd2 = new_dates[-1].replace("-", "")
+                cp = os.path.join(self.current_dir, f"대진여객운행기록_{sd2}_완결.xlsx")
+                n = 1
+                while os.path.exists(cp):
+                    cp = os.path.join(self.current_dir, f"대진여객운행기록_{sd2}_완결_{n}.xlsx")
+                    n += 1
+                try:
+                    os.replace(old_path, cp)
+                    self.log(f"📁 완결 전환: {os.path.basename(cp)}")
+                except (PermissionError, OSError) as e:
+                    self.log(f"⚠ 완결 전환 실패(파일 사용 중) → 다음 파일로 진행: {e}")
+            # ② 완결 날짜 표시 + 실시간 데이터에서 제거
+            self._completed_dates_saved.update(new_dates)
+            self.recorded_data = [
+                r for r in self.recorded_data
+                if _gbd(r[0]) not in self._completed_dates_saved
+            ]
+            # ③ 새 실시간 파일 시작 (실제 파일 생성은 이어지는 ExcelWriter가 수행)
+            fn = f"대진여객운행기록_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            self.auto_save_path = os.path.join(self.current_dir, fn)
+            self._saved_record_count = len(self.recorded_data)
+            _rt_log.rotate("엑셀 완결 파일 전환")
+        except Exception as e:
+            self.log(f"⚠ 완결 전환 중 오류: {e}")
+
+# ──────────────────────────────────────────────────────────
+# 【6-39】 _core_excel_save(tp, sc=False)
 #   운행 기록을 날짜별 시트로 분리하여 엑셀 저장.
 #
 #   날짜 분리: 새벽 3시 이전(0~2시)은 전날 운행으로 간주.
@@ -2523,11 +2874,13 @@ class DJBusRecorder(QMainWindow):
 #   ① DataFrame 생성 → gbd()로 각 데이터 영업일(BizDate) 계산
 #   ② 완결 날짜(오늘·Unknown 제외) 결정
 #   ③ ExcelWriter로 날짜별 시트 저장 + _axs()로 스타일 적용
-#   ④ sc=True이면 완결 날짜의 별도 완료 파일 생성
-#      ("운행기록_YYYYMMDD_완료.xlsx", 중복 방지)
+#   ④ sc=True이고 완결 조건 충족 시 실시간 파일을 완결로 rename(회전)
+#      (_rotate_live_file: 별도 생성 없이 이름만 전환)
 #   ⑤ _saved_record_count 갱신
 # ──────────────────────────────────────────────────────────
+    def _core_excel_save(self, tp, sc=False):
         try:
+            _rt_log.write(_gc_stats_line("저장 전"))
             cols = ["데이터시각", "운행시작/종료", "정류소이름(번호)", "노선", "차량번호"]
             df = pd.DataFrame(self.recorded_data, columns=cols)
             def gbd(ds):
@@ -2542,34 +2895,32 @@ class DJBusRecorder(QMainWindow):
             now = datetime.now()
             cb = (now - timedelta(days=1)).strftime("%Y-%m-%d") if now.hour < 3 else now.strftime("%Y-%m-%d")
             cd = set(df['BizDate'].unique()) - {cb, "Unknown"}
-            with pd.ExcelWriter(tp, engine='openpyxl') as w:
-                for bd, g in df.groupby('BizDate'):
-                    sd = g.drop(columns=['BizDate'])
-                    sd.to_excel(w, sheet_name=bd, index=False)
-                    self._axs(w.sheets[bd], sd)
+            if sc and (cd - self._completed_dates_saved):
+                # ── 완결 조건 충족 → 실시간 파일을 '완결'로 rename, 새 세션 시작 ──
+                self._rotate_live_file(sorted(cd - self._completed_dates_saved))
+                now = datetime.now()
+                cb = (now - timedelta(days=1)).strftime("%Y-%m-%d") if now.hour < 3 else now.strftime("%Y-%m-%d")
+                df = pd.DataFrame(self.recorded_data, columns=cols)
+                if not df.empty:
+                    df['BizDate'] = df['데이터시각'].apply(gbd)
+            with pd.ExcelWriter(self.auto_save_path, engine='openpyxl') as w:
+                if df.empty:
+                    pd.DataFrame(columns=cols).to_excel(w, sheet_name=cb, index=False)
+                else:
+                    for bd, g in df.groupby('BizDate'):
+                        sd = g.drop(columns=['BizDate'])
+                        sd.to_excel(w, sheet_name=bd, index=False)
+                        self._axs(w.sheets[bd], sd)
                 self._write_source_sheet(w.book)
-            if sc:
-                for bd in sorted(cd - self._completed_dates_saved):
-                    dd = df[df['BizDate'] == bd].drop(columns=['BizDate'])
-                    if dd.empty:
-                        continue
-                    sd2 = bd.replace("-", "")
-                    cp = os.path.join(self.current_dir, f"대진여객운행기록_{sd2}_완결.xlsx")
-                    with pd.ExcelWriter(cp, engine='openpyxl') as cw:
-                        dd.to_excel(cw, sheet_name=bd, index=False)
-                        self._axs(cw.sheets[bd], dd)
-                        self._write_source_sheet(cw.book)
-                    self._completed_dates_saved.add(bd)
-                    self.log(f"📁 완결 파일 저장: 대진여객운행기록_{sd2}_완결.xlsx")
             self._saved_record_count = len(self.recorded_data)
+            _rt_log.write(_gc_stats_line("저장 후"))
         except PermissionError:
             self.log("⚠ 엑셀 파일이 열려 있어 저장을 건너뜁니다.")
         except Exception as e:
             self.log(f"❌ 저장 오류: {e}")
 
-    def _write_source_sheet(self, wb):
 # ──────────────────────────────────────────────────────────
-# 【6-34】 _write_source_sheet(wb)
+# 【6-40】 _write_source_sheet(wb)
 #   엑셀 산출물(운행기록/완결 파일 공통)에 "출처 및 수집방법" 시트를
 #   맨 앞(인덱스 0)에 추가. 공공누리 제1유형 출처표시 + 수집 프로그램/
 #   소스코드 링크 + 실시간 데이터 유의사항을 담는다. _core_excel_save()에서
@@ -2577,7 +2928,12 @@ class DJBusRecorder(QMainWindow):
 #   셀 값 안에 URL이 포함돼 있으면(선행 텍스트 유무 무관) 정규식으로 추출해
 #   해당 셀 전체에 하이퍼링크를 건다.
 # ──────────────────────────────────────────────────────────
-        ws = wb.create_sheet("출처 및 수집방법", 0)
+    def _write_source_sheet(self, wb):
+        if not getattr(self, "opt_source_sheet", EXCEL_SOURCE_SHEET):
+            _rt_log.write("[SHEET] 출처표시 시트 생성 건너뜀 (옵션 source_sheet=off)")
+            return
+        _rt_log.write("[SHEET] 출처표시 시트 생성 (%s)" % _SRC_SHEET_NAME)
+        ws = wb.create_sheet(_SRC_SHEET_NAME, 0)
         rows = [
             ("■ 출처 표시", ""),
             ("출처", "서울특별시(미래첨단교통과)"),
@@ -2616,13 +2972,13 @@ class DJBusRecorder(QMainWindow):
         ws.column_dimensions["A"].width = 18
         ws.column_dimensions["B"].width = 78
 
-    def _axs(self, ws, df):
 # ──────────────────────────────────────────────────────────
-# 【6-35】 _axs(ws, df)
+# 【6-41】 _axs(ws, df)
 #   엑셀 시트 스타일 적용.
 #   헤더(1행): 연파랑(#DDEBF7) 배경 + 굵은 글자(11pt) + 가운데 정렬.
 #   컬럼 너비: max(데이터 최대 글자 수, 헤더 글자 수) + 컬럼별 가산값.
 # ──────────────────────────────────────────────────────────
+    def _axs(self, ws, df):
         hf = PatternFill(start_color="DDEBF7", end_color="DDEBF7", fill_type="solid")
         hft = XlFont(bold=True, size=11)
         ha = Alignment(horizontal='center', vertical='center')
@@ -2641,12 +2997,12 @@ class DJBusRecorder(QMainWindow):
             bw = max(ml, len(str(col)))
             ws.column_dimensions[c.column_letter].width = cw.get(col, lambda b: b + 5)(bw)
 
-    def _ask_interval(self):
 # ──────────────────────────────────────────────────────────
-# 【6-36】 _ask_interval()
+# 【6-42】 _ask_interval()
 #   갱신 주기(10초 이상)를 입력 받는 대화상자.
 #   메뉴 [메뉴 > 갱신주기 입력]에서 호출.
 # ──────────────────────────────────────────────────────────
+    def _ask_interval(self):
         dlg = QDialog(self)
         dlg.setWindowTitle("갱신주기 설정")
         dlg.setFixedSize(300, 140)
@@ -2674,9 +3030,8 @@ class DJBusRecorder(QMainWindow):
         ed.returnPressed.connect(ok)
         dlg.exec()
 
-    def _on_schedule_toggle(self):
 # ──────────────────────────────────────────────────────────
-# 【6-37】 _on_schedule_toggle()
+# 【6-43】 _on_schedule_toggle()
 #   act_schedule 버튼 클릭 시 호출. 현재 상태에 따라 4가지로 분기:
 #   ① 시작 예약 대기 중           → 시작 예약 취소
 #   ② 기록 중 + 중지 예약 대기 중 → 중지 예약 취소
@@ -2684,6 +3039,7 @@ class DJBusRecorder(QMainWindow):
 #   ④ 대기 중 (기본 상태)         → 시작 시각 입력 창
 # ──────────────────────────────────────────────────────────
         # ① 시작 예약 대기 중 → 취소
+    def _on_schedule_toggle(self):
         if self._schedule_timer is not None:
             self._schedule_timer.stop()
             self._schedule_timer = None
@@ -2706,9 +3062,8 @@ class DJBusRecorder(QMainWindow):
         # ④ 대기 중 → 시작 시각 입력 창
         self._ask_scheduled_start()
 
-    def _ask_scheduled_start(self):
 # ──────────────────────────────────────────────────────────
-# 【6-38】 _ask_scheduled_start()
+# 【6-44】 _ask_scheduled_start()
 #   기록을 시작할 예약 시각(년·월·일·시)을 입력 받는 대화상자.
 #   갱신주기 입력 대화상자(_ask_interval)와 동일한 스타일.
 #
@@ -2728,6 +3083,7 @@ class DJBusRecorder(QMainWindow):
 #   - 메뉴 텍스트를 "예약 취소 (YYYY-MM-DD HH:00 예약됨)"으로 변경
 #   - 로그에 예약 시각 기록
 # ──────────────────────────────────────────────────────────
+    def _ask_scheduled_start(self):
         now = datetime.now()
         dlg = QDialog(self)
         dlg.setWindowTitle("예약 기록 시작")
@@ -2799,9 +3155,8 @@ class DJBusRecorder(QMainWindow):
         bb.rejected.connect(dlg.reject)
         dlg.exec()
 
-    def _register_schedule_timer(self):
 # ──────────────────────────────────────────────────────────
-# 【6-39】 _register_schedule_timer()
+# 【6-45】 _register_schedule_timer()
 #   예약 시각을 1초 간격으로 감시하는 QTimer를 시작.
 #   목표 시각(self._scheduled_dt)에 도달하면:
 #   ① 타이머 중지 및 예약 변수 초기화
@@ -2809,6 +3164,7 @@ class DJBusRecorder(QMainWindow):
 #   ③ 아직 기록 중이 아닐 때만 _start_monitoring() 호출
 #      (사용자가 수동으로 먼저 시작한 경우 중복 실행 방지)
 # ──────────────────────────────────────────────────────────
+    def _register_schedule_timer(self):
         t = QTimer(self)
         t.setInterval(1000)
 
@@ -2834,12 +3190,12 @@ class DJBusRecorder(QMainWindow):
         t.start()
         self._schedule_timer = t
 
-    def _ask_scheduled_stop(self):
 # ──────────────────────────────────────────────────────────
-# 【6-40】 _ask_scheduled_stop()
+# 【6-46】 _ask_scheduled_stop()
 #   기록을 중지할 예약 시각(년·월·일·시·분)을 입력 받는 대화상자.
 #   _ask_scheduled_start() 와 동일한 UI 구조.
 # ──────────────────────────────────────────────────────────
+    def _ask_scheduled_stop(self):
         now = datetime.now()
         dlg = QDialog(self)
         dlg.setWindowTitle("예약 기록 중지")
@@ -2903,14 +3259,14 @@ class DJBusRecorder(QMainWindow):
         bb.rejected.connect(dlg.reject)
         dlg.exec()
 
-    def _register_stop_schedule_timer(self):
 # ──────────────────────────────────────────────────────────
-# 【6-41】 _register_stop_schedule_timer()
+# 【6-47】 _register_stop_schedule_timer()
 #   중지 예약 시각을 1초 간격으로 감시하는 QTimer를 시작.
 #   목표 시각(self._stop_scheduled_dt)에 도달하면:
 #   ① 타이머 중지 및 예약 변수 초기화
 #   ② 아직 기록 중일 때만 _stop_monitoring_silent() 호출
 # ──────────────────────────────────────────────────────────
+    def _register_stop_schedule_timer(self):
         t = QTimer(self)
         t.setInterval(1000)
 
@@ -2933,12 +3289,12 @@ class DJBusRecorder(QMainWindow):
         t.start()
         self._stop_schedule_timer = t
 
-    def _stop_monitoring_silent(self):
 # ──────────────────────────────────────────────────────────
-# 【6-42】 _stop_monitoring_silent()
+# 【6-48】 _stop_monitoring_silent()
 #   예약 중지 시각 도달 시 확인 다이얼로그 없이 자동으로 기록을 중지.
 #   _stop_monitoring() 과 동일한 처리를 하되 QMessageBox 생략.
 # ──────────────────────────────────────────────────────────
+    def _stop_monitoring_silent(self):
         self.is_monitoring = False
         self.act_toggle.setText("기록 시작")
         self.act_schedule.setText("예약 기록 시작")
@@ -2949,10 +3305,10 @@ class DJBusRecorder(QMainWindow):
         for p in self.route_map_panels.values():
             p.pause_tick()
         if self.recorded_data and self.auto_save_path and self.can_auto_save and len(self.recorded_data) > self._saved_record_count:
-            self._perform_auto_save()
+            self._final_save()
 
 # ──────────────────────────────────────────────────────────
-# 【6-43】 _show_api_status()
+# 【6-49】 _show_api_status()
 #   API 엔드포인트별 오늘·어제 호출 횟수를 표로 보여주는 대화상자.
 #   공공데이터 API는 하루 호출 횟수 제한이 있으므로 사용량 모니터링에 활용.
 #   SRCH 항목은 [인증키 입력] 대화상자의 키 검증(테스트 호출) 횟수를 집계.
@@ -2995,15 +3351,15 @@ class DJBusRecorder(QMainWindow):
         dlg.resize(750, total_h + 50)
         dlg.exec()
 
-    def _show_program_info(self):
 # ──────────────────────────────────────────────────────────
-# 【6-44】 _show_program_info()
+# 【6-50】 _show_program_info()
 #   메뉴 [프로그램 정보 보기] 클릭 시 호출.
 #   ① 저작권/오픈소스(MIT, Qt·PySide6 LGPL v3) 고지
 #   ② 공공데이터 4개 데이터셋 출처표시(공공누리 제1유형) + 공공누리 마크
 #   ③ 이용 안내(행정심판 2022-21122 재결, 목적/금지사항, 인증키 암호화 저장 안내 등)
 #   ④ [라이선스 전문 폴더 열기] 버튼 → _open_licenses_dir()로 licenses 폴더 오픈
 # ──────────────────────────────────────────────────────────
+    def _show_program_info(self):
         dlg = QDialog(self)
         dlg.setWindowTitle("프로그램 정보")
         dlg.resize(680, 840)
@@ -3112,21 +3468,21 @@ class DJBusRecorder(QMainWindow):
         lay.addLayout(h)
         dlg.exec()
 
-    def closeEvent(self, event):
 # ──────────────────────────────────────────────────────────
-# 【6-45】 closeEvent(event)
+# 【6-51】 closeEvent(event)
 #   창 닫기 시 Qt 자동 호출.
 #   ① 종료 확인 메시지 → 아니오이면 event.ignore()로 취소
 #   ② is_monitoring=False (갱신 루프 중지)
 #   ③ 미저장 기록 있으면 _perform_auto_save() 마지막 저장
 #   ④ event.accept()로 창 닫기 허용
 # ──────────────────────────────────────────────────────────
+    def closeEvent(self, event):
         if QMessageBox.question(self, "종료 확인", "프로그램을 종료하시겠습니까?") != QMessageBox.Yes:
             event.ignore()
             return
         self.is_monitoring = False
         if self.recorded_data and self.auto_save_path and self.can_auto_save and len(self.recorded_data) > self._saved_record_count:
-            self._perform_auto_save()
+            self._final_save()
         event.accept()
 
 # ══════════════════════════════════════════════════════════
@@ -3137,9 +3493,12 @@ class DJBusRecorder(QMainWindow):
 #   → 평소 사용 시: False (로그 안 남김, 파일 I/O 부담도 없음)
 #   → 강제종료가 재발할 때 원인 파악용: True로 켜서 재현
 # ══════════════════════════════════════════════════════════
-DEBUG_CRASH_FIX = False
+# 기본값 (ini [options] debug_log 미설정 시). 실제 값은 실행 시 ini에서 읽어 덮어쓴다.
+DEBUG_CRASH_LOG = False
 
 if __name__ == "__main__":
+    # ── [옵션] 디버그 로그: DJ_Bus_Config.ini [options] debug_log (on/off) ──
+    DEBUG_CRASH_LOG = bool(_read_ini_options().get("debug_log", False))
 # ══════════════════════════════════════════════════════════
 # 【7】 프로그램 진입점
 #   이 파일을 직접 실행했을 때만 이 블록이 실행됨.
@@ -3148,7 +3507,7 @@ if __name__ == "__main__":
 #      → 백그라운드 스레드(_main_loop 등)에서 GC가 돌며 Qt 객체가
 #        엉뚱한 스레드에서 소멸되어 발생하는
 #        "Windows fatal exception: access violation" 크래시를 방지.
-#   ② [DEBUG_CRASH_FIX=True일 때만] crash_dump.txt 로깅 설치
+#   ② [DEBUG_CRASH_LOG=True일 때만] crash_dump.txt 로깅 설치
 #      (faulthandler + 미처리 예외 후킹 + Qt 메시지 핸들러 +
 #       GC 발생 시점/스레드 기록)
 #   ③ QApplication 생성 ("Fusion" 스타일 적용)
@@ -3159,7 +3518,7 @@ if __name__ == "__main__":
 
     # ── ① [항상 적용] GC를 메인(GUI) 스레드에서만 실행 ──────────
     #   자동(백그라운드 임의 스레드) GC를 끄고, 메인 스레드의
-    #   QTimer가 30초마다 명시적으로 gc.collect()를 호출하도록
+    #   QTimer가 10초마다 명시적으로 gc.collect()를 호출하도록
     #   강제함. 인자 없는 gc.collect()는 항상 전체 세대(gen2급)
     #   수거를 수행함.
     import gc
@@ -3167,20 +3526,17 @@ if __name__ == "__main__":
 
     def _periodic_gc():
         n = gc.collect()
-        if DEBUG_CRASH_FIX and n and '_crash_log' in globals():
+        if DEBUG_CRASH_LOG and n and '_crash_log' in globals():
             _crash_log.write(
                 f"[{datetime.now():%H:%M:%S}] [진단] GC(전체세대) 실행 "
                 f"(스레드: 메인) → {n}개 객체 회수\n"
             )
             _crash_log.flush()
 
-    _gc_timer = QTimer()
-    _gc_timer.timeout.connect(_periodic_gc)
-    _gc_timer.start(30000)  # 30초마다, 메인(GUI) 스레드에서 실행
     # ─────────────────────────────────────────────────────────
 
-    # ── ② [DEBUG_CRASH_FIX=True일 때만] crash_dump.txt 로깅 설치 ──
-    if DEBUG_CRASH_FIX:
+    # ── ② [DEBUG_CRASH_LOG=True일 때만] crash_dump.txt 로깅 설치 ──
+    if DEBUG_CRASH_LOG:
         import faulthandler
         import traceback
 
@@ -3236,10 +3592,19 @@ if __name__ == "__main__":
             _crash_log.flush()
 
         qInstallMessageHandler(_qt_msg)
+
+        # ── ②-b [DEBUG_CRASH_LOG=True일 때만] 런타임 상세(C등급) 로그 시작 ──
+        _rt_log = _RuntimeLog()
+        _rt_log.start("프로그램 시작")
     # ─────────────────────────────────────────────────────────
 
     # ── ③~⑥ 원래의 시작 절차 ──
     app = QApplication(sys.argv)
+
+    # ── GC 타이머: QApplication 생성 이후 시작 (이벤트 루프 존재 보장) ──
+    _gc_timer = QTimer()
+    _gc_timer.timeout.connect(_periodic_gc)
+    _gc_timer.start(10000)  # 10초마다, 메인(GUI) 스레드에서 실행
     app.setStyle("Fusion")
     mode = "dark" if detect_os_dark_mode() else "light"
     app.setPalette(_make_palette(mode))
@@ -3247,8 +3612,9 @@ if __name__ == "__main__":
     window.show()
 
     _rc = app.exec()
-    if DEBUG_CRASH_FIX:
+    if DEBUG_CRASH_LOG:
         _crash_log.write(f"===== 정상 종료 (code={_rc}) "
                          f"{datetime.now():%Y-%m-%d %H:%M:%S} =====\n")
         _crash_log.close()
+        _rt_log.close()
     sys.exit(_rc)
