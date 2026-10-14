@@ -10,7 +10,7 @@
 # - macOS에서는 단일 바이너리에 아이콘이 적용되지 않으므로,
 #   BUNDLE 블록으로 .app 번들을 함께 생성해 bus.icns를 적용한다.
 
-APP_VERSION = "1_57"  # 앱/파일명에 쓰이는 버전 표기 (예: v1_55)
+APP_VERSION = "1_58"  # 앱/파일명에 쓰이는 버전 표기 (예: v1_55)
 
 VERSION_DOT = APP_VERSION.replace("_", ".")
 
