@@ -77,7 +77,7 @@
 #      ├─ 【6-5】  _open_save_folder()        기록 파일 폴더 열기
 #      ├─ 【6-6】  _toggle_log_panel()     로그창 접기/펼치기
 #      ├─ 【6-7】  _apply_theme()          라이트/다크 테마 전체 적용
-#      ├─ 【6-8】  _slot_log()             로그 메시지 화면 출력 [슬롯]
+#      ├─ 【6-8】  _slot_log()             로그 출력 + 기록파일 라벨 동기화 [슬롯]
 #      ├─ 【6-9】  _slot_record()          운행 기록 표 추가 [슬롯]
 #      ├─ 【6-10】 _slot_update_map()      지도 버스 위치 갱신 [슬롯]
 #      ├─ 【6-11】 _slot_clear_map()       지도 버스 제거 [슬롯]
@@ -103,11 +103,11 @@
 #      ├─ 【6-31】 _stop_monitoring()      모니터링 중지 (중지예약 팝업 분기 포함)
 #      ├─ 【6-32】 _main_loop()            백그라운드 갱신 루프 스레드
 #      ├─ 【6-33】 _refresh_data()         한 번의 데이터 갱신 실행
-#      ├─ 【6-34】 _process_routes()  ★    버스 위치 분석·운행 판정 핵심
+#      ├─ 【6-34】 _process_routes()  ★    버스 위치 분석·운행 판정 핵심 (출발 4단계)
 #      ├─ 【6-35】 _record()               운행 이벤트 기록
 #      ├─ 【6-36】 _perform_auto_save()    자동 엑셀 저장 (락 보호)
 #      ├─ 【6-37】 _final_save()           최종 엑셀 저장 (락 보호)
-#      ├─ 【6-38】 _rotate_live_file(new_dates)      기록 파일 회전 (날짜별 시트)
+#      ├─ 【6-38】 _rotate_live_file(new_dates)      기록 파일 회전 + 실시간 파일명 로그
 #      ├─ 【6-39】 _core_excel_save()      엑셀 파일 저장 (날짜별 시트)
 #      ├─ 【6-40】 _write_source_sheet()   엑셀 "출처" 시트 작성 (공공데이터 4종 출처표시)
 #      ├─ 【6-41】 _axs()                  엑셀 시트 스타일 적용
@@ -257,7 +257,7 @@ except ImportError:
 # 【2-1】 프로그램 버전 상수 (APP_VERSION)
 # ══════════════════════════════════════════════════════════
 APP_NAME = "대진여객 버스 운행기록 수집 프로그램"
-APP_VERSION = "1.56.8"
+APP_VERSION = "1.57"
 APP_TITLE = f"{APP_NAME} v{APP_VERSION}"
 
 # 엑셀 "출처 및 수집방법" 시트 생성 기본값 (실제 on/off는 [옵션] 메뉴 / DJ_Bus_Config.ini 로 관리)
@@ -466,6 +466,8 @@ STATION_INFO = {
 #   - 노선ID(rid)     : 서울시 API에서 사용하는 노선 고유 식별자
 #   - 첫정류소ID(fst) : 출발 판정에 사용 (버스가 이 정류소에 있으면 출발로 기록)
 #   - 두번째정류소ID(sst): 첫 정류소 감지 실패 시 보조 출발 감지용
+#   - 세·네번째 정류소  : 두 번째 정류소 다음 2개를 정류소 목록에서 자동 도출
+#                         (출발 판정 4단계 확장 — 별도 테이블 입력 불필요)
 #   - 종점이전정류소ID(lst): 종점 도착 판정에 사용
 #   - 이전정류소ID(pst): 추가 위치 확인용 (예비 정류소)
 #
@@ -1892,6 +1894,7 @@ class DJBusRecorder(QMainWindow):
 # ──────────────────────────────────────────────────────────
 # 【6-8】 _slot_log(msg) [슬롯]
 #   sig_log 수신 → log_text에 "[HH:MM:SS] 메시지" 추가.
+#   + 현재 기록 파일 라벨(_log_file_label)을 auto_save_path 값으로 동기화.
 #
 # 【6-9】 _slot_record(idx, entry) [슬롯]
 #   sig_record 수신 → idx=0: table_depart, 1: table_arrive에 추가.
@@ -1907,6 +1910,8 @@ class DJBusRecorder(QMainWindow):
 # ──────────────────────────────────────────────────────────
     def _slot_log(self, msg):
         self.log_text.appendPlainText(datetime.now().strftime("[%H:%M:%S] ") + msg)
+        if self.auto_save_path:
+            self._log_file_label.set_full_text(self.auto_save_path)
 
     @Slot(int, tuple)
     def _slot_record(self, idx, entry):
@@ -2161,6 +2166,7 @@ class DJBusRecorder(QMainWindow):
 #
 #   처리 순서 (각 노선에 대해):
 #   1) STATION_INFO에서 첫·두번째·종점 정류소의 이름·ARS번호 조회
+#   1-1) 3·4번째 정류소는 정류소 목록에서 자동 도출 (출발 판정 4단계)
 #   2) URL_SLST API로 전체 정류소 목록 가져오기 (seq 순 정렬)
 #      → route['stations'] 리스트 완성
 #      → route['st_cnt'] = 정류소 수
@@ -2215,10 +2221,21 @@ class DJBusRecorder(QMainWindow):
                 rt = r2.strip() if r2.strip() else "3"
                 rl = rr.findtext(".//length") or ""
             self.log(f"  [{rnm}] 첫: {fn}({fa}) / 종점: {ln}({la}) / 운수사: {cn} / 첫차: {fbt} / 막차: {lbt}")
+            # ── 3·4번째 정류소 도출 (출발 판정 4단계 확장) ──────────
+            #   두 번째 정류소(sst) 다음 두 개를 정류소 목록에서 자동 취득.
+            #   목록에서 못 찾으면 첫 정류소(fst) 기준, 그것도 없으면 선두.
+            _ids = [x["station"] for x in stations]
+            _i = _ids.index(sst) if sst in _ids else (_ids.index(fst) if fst in _ids else 0)
+            _p3 = stations[_i + 1] if _i + 1 < len(stations) else {}
+            _p4 = stations[_i + 2] if _i + 2 < len(stations) else {}
             routes.append({
                 "rnm": rnm, "rid": rid, "st_cnt": sc,
                 "first_ars": fa, "first_nm": fn, "first_st_id": fst,
                 "second_ars": sa, "second_nm": sn, "second_st_id": sst,
+                "third_ars": _p3.get("arsId", "?"), "third_nm": _p3.get("name", "?"),
+                "third_st_id": _p3.get("station", ""),
+                "fourth_ars": _p4.get("arsId", "?"), "fourth_nm": _p4.get("name", "?"),
+                "fourth_st_id": _p4.get("station", ""),
                 "last_ars": la, "last_nm": ln, "last_st_id": lst,
                 "prev_st_id": pst, "corp_nm": cn,
                 "first_bus_tm": fbt, "last_bus_tm": lbt,
@@ -2605,7 +2622,7 @@ class DJBusRecorder(QMainWindow):
 #        - 운행 시간대(첫차±5분~막차+30분) 내면 감시 계속,
 #          그 외이면 pos_suspend_until 설정으로 API 호출 중지
 #      버스 있으면:
-#        - lastStnId가 첫·두 번째 정류소 → 출발 기록 (_record)
+#        - lastStnId가 첫·두·세·네 번째 정류소 → 출발 기록 (_record)
 #          (30분=1800초 내 중복 방지, departed_vehicles에 등록)
 #        - URL_SLST로 구간 속도 수집 → _sect_speeds 갱신
 #        - sig_update_map으로 지도 버스 위치 갱신
@@ -2695,7 +2712,9 @@ class DJBusRecorder(QMainWindow):
                         self.departed_vehicles[(rid, vn)] = _now
                     ifs = route['first_st_id'] and ls == route['first_st_id']
                     iss = route['second_st_id'] and ls == route['second_st_id']
-                    if not (ifs or iss):
+                    iths = route['third_st_id'] and ls == route['third_st_id']
+                    ifr = route['fourth_st_id'] and ls == route['fourth_st_id']
+                    if not (ifs or iss or iths or ifr):
                         continue
                     k0 = (0, rid, vn)
                     if k0 not in self.last_arrival_logs or _now - self.last_arrival_logs[k0] >= 1800:
@@ -2703,9 +2722,15 @@ class DJBusRecorder(QMainWindow):
                         if ifs:
                             dn, da = route['first_nm'], route['first_ars']
                             st = f"[{dn}({da}) 출발]"
-                        else:
+                        elif iss:
                             dn, da = route['second_nm'], route['second_ars']
                             st = f"[{dn}({da}) 출발 - 2번째 정류소 감지]"
+                        elif iths:
+                            dn, da = route['third_nm'], route['third_ars']
+                            st = f"[{dn}({da}) 출발 - 3번째 정류소 감지]"
+                        else:
+                            dn, da = route['fourth_nm'], route['fourth_ars']
+                            st = f"[{dn}({da}) 출발 - 4번째 정류소 감지]"
                         self._record(0, ft2, rnm, vn, dn, da, st)
                         self.last_arrival_logs[k0] = _now
                         self.departed_vehicles[(rid, vn)] = _now
@@ -2818,7 +2843,7 @@ class DJBusRecorder(QMainWindow):
 # 【6-38】 _rotate_live_file(new_dates)
 #   완결 조건이 충족되면 현재 '기록중인 실시간 파일'을 완결 이름으로
 #   rename(os.replace)하고, 완결 날짜를 실시간 데이터에서 제거한 뒤
-#   실시간 세션을 새로 시작한다.
+#   실시간 세션을 새로 시작한다. (새 파일명은 self.log()로 함께 표시)
 #   - 별도 완결 파일을 '생성'하지 않음 (저장 1회로 전환)
 #   - rename 실패(파일 사용 중 등) 시에도 다음 실시간 파일로 넘어감(기록 손실 없음)
 #   - _save_lock 보유 상태(_perform_auto_save)에서만 호출됨
@@ -2860,6 +2885,7 @@ class DJBusRecorder(QMainWindow):
             # ③ 새 실시간 파일 시작 (실제 파일 생성은 이어지는 ExcelWriter가 수행)
             fn = f"대진여객운행기록_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
             self.auto_save_path = os.path.join(self.current_dir, fn)
+            self.log(f"📁 실시간 기록파일 변경: {os.path.basename(self.auto_save_path)}")
             self._saved_record_count = len(self.recorded_data)
             _rt_log.rotate("엑셀 완결 파일 전환")
         except Exception as e:
