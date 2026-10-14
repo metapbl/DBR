@@ -322,7 +322,7 @@ FONT_MONO = "Consolas"
 #   · DEBUG_CRASH_LOG 하나로 crash_dump.txt + 런타임 로그를 동시 on/off
 #   · Off(False)이면 두 파일 모두 생성되지 않음(스텁이 no-op로 동작)
 #   · 파일명: djbus_runtime_YYYYMMDD_HHMMSS.log (생성 시각 == 그 회차 시작)
-#   · 회전 트리거: ① 프로그램 시작  ② 엑셀 '완결' 파일 생성 시
+#   · 회전 트리거: ① 프로그램 시작  ② 엑셀 '완료' 파일 생성 시
 #   · 각 줄에 기록 시각 + 스레드명/ID 를 남겨 원인 귀속(attribution)에 사용
 # ══════════════════════════════════════════════════════════
 class _RuntimeLog:
@@ -2798,8 +2798,8 @@ class DJBusRecorder(QMainWindow):
 # ──────────────────────────────────────────────────────────
 # 【6-37】 _final_save()
 #   기록 중지/창 닫기 시 호출되는 마지막 저장.
-#   완결 처리(sc=False)를 하지 않고 실시간 파일만 마지막으로 저장한다.
-#   (완결 전환은 오직 자동 저장 사이클의 완결 조건에서만 발생)
+#   완료 처리(sc=False)를 하지 않고 실시간 파일만 마지막으로 저장한다.
+#   (완료 전환은 오직 자동 저장 사이클의 완료 조건에서만 발생)
 # ──────────────────────────────────────────────────────────
     def _final_save(self):
         if not self.recorded_data or not self.auto_save_path or not self.can_auto_save:
@@ -2808,16 +2808,16 @@ class DJBusRecorder(QMainWindow):
             return
         try:
             self._core_excel_save(self.auto_save_path, False)
-            _rt_log.write("[SAVE] 최종 저장 완료(완결 처리 없음)")
+            _rt_log.write("[SAVE] 최종 저장 완료(완료 처리 없음)")
         finally:
             self._save_lock.release()
 
 # ──────────────────────────────────────────────────────────
 # 【6-38】 _rotate_live_file(new_dates)
-#   완결 조건이 충족되면 현재 '기록중인 실시간 파일'을 완결 이름으로
-#   rename(os.replace)하고, 완결 날짜를 실시간 데이터에서 제거한 뒤
+#   완료 조건이 충족되면 현재 '기록중인 실시간 파일'을 완료 이름으로
+#   rename(os.replace)하고, 완료 날짜를 실시간 데이터에서 제거한 뒤
 #   실시간 세션을 새로 시작한다. (새 파일명은 self.log()로 함께 표시)
-#   - 별도 완결 파일을 '생성'하지 않음 (저장 1회로 전환)
+#   - 별도 완료 파일을 '생성'하지 않음 (저장 1회로 전환)
 #   - rename 실패(파일 사용 중 등) 시에도 다음 실시간 파일로 넘어감(기록 손실 없음)
 #   - _save_lock 보유 상태(_perform_auto_save)에서만 호출됨
 # ──────────────────────────────────────────────────────────
@@ -2834,22 +2834,22 @@ class DJBusRecorder(QMainWindow):
                     return d.strftime("%Y-%m-%d")
                 except:
                     return "Unknown"
-            # ① 실시간 파일 → 완결 이름으로 rename (내용 그대로 봉인)
+            # ① 실시간 파일 → 완료 이름으로 rename (내용 그대로 봉인)
             #    ※ rename 실패해도 회전은 계속 진행한다(기록은 이미 저장됨).
-            #       완결 파일은 삭제/아카이브하지 않고 실행경로에 그대로 남긴다.
+            #       완료 파일은 삭제/아카이브하지 않고 실행경로에 그대로 남긴다.
             if old_path and os.path.exists(old_path):
                 sd2 = new_dates[-1].replace("-", "")
-                cp = os.path.join(self.current_dir, f"대진여객운행기록_{sd2}_완결.xlsx")
+                cp = os.path.join(self.current_dir, f"대진여객운행기록_{sd2}_완료.xlsx")
                 n = 1
                 while os.path.exists(cp):
-                    cp = os.path.join(self.current_dir, f"대진여객운행기록_{sd2}_완결_{n}.xlsx")
+                    cp = os.path.join(self.current_dir, f"대진여객운행기록_{sd2}_완료_{n}.xlsx")
                     n += 1
                 try:
                     os.replace(old_path, cp)
-                    self.log(f"📁 완결 전환: {os.path.basename(cp)}")
+                    self.log(f"📁 완료 전환: {os.path.basename(cp)}")
                 except (PermissionError, OSError) as e:
-                    self.log(f"⚠ 완결 전환 실패(파일 사용 중) → 다음 파일로 진행: {e}")
-            # ② 완결 날짜 표시 + 실시간 데이터에서 제거
+                    self.log(f"⚠ 완료 전환 실패(파일 사용 중) → 다음 파일로 진행: {e}")
+            # ② 완료 날짜 표시 + 실시간 데이터에서 제거
             self._completed_dates_saved.update(new_dates)
             self.recorded_data = [
                 r for r in self.recorded_data
@@ -2860,9 +2860,9 @@ class DJBusRecorder(QMainWindow):
             self.auto_save_path = os.path.join(self.current_dir, fn)
             self.log(f"📁 실시간 기록파일 변경: {os.path.basename(self.auto_save_path)}")
             self._saved_record_count = len(self.recorded_data)
-            _rt_log.rotate("엑셀 완결 파일 전환")
+            _rt_log.rotate("엑셀 완료 파일 전환")
         except Exception as e:
-            self.log(f"⚠ 완결 전환 중 오류: {e}")
+            self.log(f"⚠ 완료 전환 중 오류: {e}")
 
 # ──────────────────────────────────────────────────────────
 # 【6-39】 _core_excel_save(tp, sc=False)
@@ -2871,9 +2871,9 @@ class DJBusRecorder(QMainWindow):
 #   날짜 분리: 새벽 3시 이전(0~2시)은 전날 운행으로 간주.
 #   처리 순서:
 #   ① DataFrame 생성 → gbd()로 각 데이터 영업일(BizDate) 계산
-#   ② 완결 날짜(오늘·Unknown 제외) 결정
+#   ② 완료 날짜(오늘·Unknown 제외) 결정
 #   ③ ExcelWriter로 날짜별 시트 저장 + _axs()로 스타일 적용
-#   ④ sc=True이고 완결 조건 충족 시 실시간 파일을 완결로 rename(회전)
+#   ④ sc=True이고 완료 조건 충족 시 실시간 파일을 완료로 rename(회전)
 #      (_rotate_live_file: 별도 생성 없이 이름만 전환)
 #   ⑤ _saved_record_count 갱신
 # ──────────────────────────────────────────────────────────
@@ -2895,7 +2895,7 @@ class DJBusRecorder(QMainWindow):
             cb = (now - timedelta(days=1)).strftime("%Y-%m-%d") if now.hour < 3 else now.strftime("%Y-%m-%d")
             cd = set(df['BizDate'].unique()) - {cb, "Unknown"}
             if sc and (cd - self._completed_dates_saved):
-                # ── 완결 조건 충족 → 실시간 파일을 '완결'로 rename, 새 세션 시작 ──
+                # ── 완료 조건 충족 → 실시간 파일을 '완료'로 rename, 새 세션 시작 ──
                 self._rotate_live_file(sorted(cd - self._completed_dates_saved))
                 now = datetime.now()
                 cb = (now - timedelta(days=1)).strftime("%Y-%m-%d") if now.hour < 3 else now.strftime("%Y-%m-%d")
@@ -2920,7 +2920,7 @@ class DJBusRecorder(QMainWindow):
 
 # ──────────────────────────────────────────────────────────
 # 【6-40】 _write_source_sheet(wb)
-#   엑셀 산출물(운행기록/완결 파일 공통)에 "출처 및 수집방법" 시트를
+#   엑셀 산출물(운행기록/완료 파일 공통)에 "출처 및 수집방법" 시트를
 #   맨 앞(인덱스 0)에 추가. 공공누리 제1유형 출처표시 + 수집 프로그램/
 #   소스코드 링크 + 실시간 데이터 유의사항을 담는다. _core_excel_save()에서
 #   ExcelWriter의 with 블록 안, 날짜별 시트 작성 직후에 호출된다.
